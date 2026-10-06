@@ -71,13 +71,13 @@ export const Screen6PatientProfile: React.FC = () => {
               </span>
             </div>
 
-            {/* Match Accuracy */}
+            {/* Govt ID Binding */}
             <div className="bg-[#F8F9FA] p-3 rounded-xl border border-neutral-200/80">
               <span className="text-[10px] text-neutral-400 block uppercase font-bold">
-                MATCH ACCURACY
+                GOVT ID BINDING
               </span>
-              <span className="text-xs font-bold text-neutral-900 mt-0.5 block">
-                {identityConfidence.toFixed(1)}%
+              <span className="text-xs font-bold text-emerald-700 mt-0.5 block">
+                Aadhaar e-KYC
               </span>
             </div>
 

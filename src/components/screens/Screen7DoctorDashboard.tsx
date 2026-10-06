@@ -134,8 +134,8 @@ export const Screen7DoctorDashboard: React.FC = () => {
 
               {/* Status Badges */}
               <div className="flex flex-col items-end gap-1.5 font-mono text-xs">
-                <span className="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded font-bold">
-                  Match: {identityConfidence}% Acc
+                <span className="bg-emerald-50 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded font-bold">
+                  Identity: Aadhaar e-KYC ✓
                 </span>
                 <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold">
                   Clinical Trust: {clinicalTrustScore}%

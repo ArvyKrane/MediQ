@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Building2,
   Search,
+  UserPlus,
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
 import { AbhaScannerModal } from '../common/AbhaScannerModal';
@@ -28,15 +29,17 @@ export const Screen1EmergencyLanding: React.FC = () => {
     setCurrentScreen,
     currentPatient,
     identityStatus,
-    identityConfidence,
     scanFace,
     scanFingerprint,
     scanIdCard,
     fingerprintVerified,
     idCardVerified,
     setIsInsuranceModalOpen,
+    isRegisterModalOpen,
+    setIsRegisterModalOpen,
     isConflictResolved,
     resolvedBloodGroup,
+    capturedPhotoUrl,
   } = useMediq();
 
   const [scannerModalOpen, setScannerModalOpen] = useState(false);
@@ -73,23 +76,43 @@ export const Screen1EmergencyLanding: React.FC = () => {
           </div>
         </div>
 
-        {/* Insurance Shield Callout Badge */}
-        <button
-          type="button"
-          onClick={() => setIsInsuranceModalOpen(true)}
-          className="w-full md:w-auto bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-300 p-3 rounded-2xl text-left transition-all group shrink-0"
-        >
-          <div className="flex items-center gap-2 font-bold text-xs text-emerald-900">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
-            <span>Insurance Protection Shield</span>
-          </div>
-          <p className="text-[11px] text-emerald-700 mt-0.5">
-            Emergency scans <strong>never</strong> leak past medical records to insurance companies.
-          </p>
-          <span className="text-[10px] font-mono text-emerald-800 font-bold underline mt-1 block">
-            Tap to learn why →
-          </span>
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto shrink-0">
+          {/* Register Citizen Button */}
+          <button
+            type="button"
+            onClick={() => setIsRegisterModalOpen(true)}
+            className="bg-amber-50 hover:bg-amber-100/90 border border-amber-300 p-3 rounded-2xl text-left transition-all group shrink-0"
+          >
+            <div className="flex items-center gap-2 font-bold text-xs text-amber-950">
+              <UserPlus className="w-4 h-4 text-amber-600 group-hover:scale-110 transition-transform" />
+              <span>Register Patient / Create ABHA</span>
+            </div>
+            <p className="text-[11px] text-amber-800 mt-0.5">
+              Take selfie + enter Aadhaar to test instant emergency lookup.
+            </p>
+            <span className="text-[10px] font-mono text-amber-900 font-bold underline mt-1 block">
+              Citizen Onboarding →
+            </span>
+          </button>
+
+          {/* Insurance Shield Callout Badge */}
+          <button
+            type="button"
+            onClick={() => setIsInsuranceModalOpen(true)}
+            className="bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-300 p-3 rounded-2xl text-left transition-all group shrink-0"
+          >
+            <div className="flex items-center gap-2 font-bold text-xs text-emerald-900">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+              <span>Insurance Protection Shield</span>
+            </div>
+            <p className="text-[11px] text-emerald-700 mt-0.5">
+              Emergency scans <strong>never</strong> leak past medical records.
+            </p>
+            <span className="text-[10px] font-mono text-emerald-800 font-bold underline mt-1 block">
+              Tap to learn why →
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Prominent Clinical Conflict Warning Card */}
@@ -155,10 +178,18 @@ export const Screen1EmergencyLanding: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 mt-6 items-center">
               {/* Silhouette Avatar */}
               <div className="sm:col-span-5 flex flex-col items-center justify-center p-6 bg-[#F8F9FA] rounded-2xl border border-neutral-200 relative group">
-                <div className="relative w-36 h-36 rounded-2xl bg-neutral-200/80 flex items-center justify-center border-2 border-dashed border-neutral-300 overflow-hidden">
-                  <div className="absolute inset-0 bg-neutral-100 flex items-center justify-center">
-                    <UserX className="w-20 h-20 text-neutral-400" />
-                  </div>
+                <div className="relative w-36 h-36 rounded-2xl bg-neutral-200/80 flex items-center justify-center border-2 border-dashed border-neutral-300 overflow-hidden shadow-inner">
+                  {capturedPhotoUrl || currentPatient.photoUrl ? (
+                    <img
+                      src={capturedPhotoUrl || currentPatient.photoUrl}
+                      alt={currentPatient.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-neutral-100 flex items-center justify-center">
+                      <UserX className="w-20 h-20 text-neutral-400" />
+                    </div>
+                  )}
                   <Crosshair className="absolute top-2 left-2 w-4 h-4 text-neutral-400" />
                   <Crosshair className="absolute bottom-2 right-2 w-4 h-4 text-neutral-400" />
                   {identityStatus === 'SCANNING' && <div className="animate-scanline" />}
@@ -192,24 +223,24 @@ export const Screen1EmergencyLanding: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Match Accuracy Indicator */}
-                <div className="bg-[#F8F9FA] p-3.5 rounded-xl border border-neutral-200/80">
-                  <div className="flex justify-between items-center text-xs mb-1.5">
-                    <span className="font-semibold text-neutral-700">Identity Match Accuracy</span>
-                    <span className="font-mono font-bold text-neutral-950 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                      {identityConfidence}% Match
+                {/* Clean, Jargon-Free Verification Status */}
+                <div className="bg-emerald-50/90 p-3.5 rounded-xl border border-emerald-300">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="font-bold text-xs text-emerald-950">
+                      Identity Verified via Aadhaar e-KYC & ABDM
+                    </span>
+                    <span className="ml-auto text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300">
+                      CONFIRMED
                     </span>
                   </div>
-                  <div className="w-full h-2.5 bg-neutral-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-amber-400 to-[#FFB800] rounded-full transition-all duration-700"
-                      style={{ width: `${identityConfidence}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] text-neutral-400 font-mono mt-1">
-                    <span>Low Match</span>
-                    <span className="text-neutral-700 font-bold">90% Safety Threshold</span>
-                    <span>High Accuracy</span>
+                  <p className="text-[11px] text-emerald-800 mt-1 leading-relaxed">
+                    Live biometrics match citizen's registered government ID. No probabilistic guessing needed.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 mt-2 text-[10px] font-mono text-emerald-900 border-t border-emerald-200/80 pt-1.5">
+                    <span>{currentPatient.maskedGovId}</span>
+                    <span>•</span>
+                    <span>ABHA No: {currentPatient.abhaNumber}</span>
                   </div>
                 </div>
 

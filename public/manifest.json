@@ -1,0 +1,18 @@
+{
+  "short_name": "MEDIQ",
+  "name": "MEDIQ Emergency Medical Intelligence",
+  "description": "Emergency Medical Intelligence & Patient Identity Trust Platform powered by ABHA and Aadhaar Face e-KYC",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F8F9FA",
+  "theme_color": "#0A0A0A",
+  "display": "standalone",
+  "orientation": "portrait-primary"
+}

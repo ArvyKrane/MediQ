@@ -24,6 +24,9 @@ interface MediqState {
   currentPatient: PatientProfile;
   availablePatients: PatientProfile[];
   selectPatientByAbha: (abhaIdOrNumber: string) => boolean;
+  registerPatient: (patient: PatientProfile) => void;
+  isRegisterModalOpen: boolean;
+  setIsRegisterModalOpen: (open: boolean) => void;
 
   // Input & Verification State (No NFC - Face, Fingerprint, ID Card)
   activeInputMethod: ScanInputMethod | null;
@@ -36,6 +39,10 @@ interface MediqState {
   idCardVerified: boolean;
   activeCandidate: IdentityCandidate;
   candidates: IdentityCandidate[];
+  capturedPhotoUrl: string | null;
+  setCapturedPhotoUrl: (url: string | null) => void;
+  useLiveCamera: boolean;
+  setUseLiveCamera: (val: boolean) => void;
 
   // Biometric & ID Scanners (resolves to ABHA ID)
   scanFace: () => void;
@@ -407,8 +414,9 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isOffline, setIsOffline] = useState<boolean>(false);
 
   // Patients
+  const [availablePatients, setAvailablePatients] = useState<PatientProfile[]>(DEMO_PATIENTS);
   const [currentPatient, setCurrentPatient] = useState<PatientProfile>(DEMO_PATIENTS[0]);
-  const [availablePatients] = useState<PatientProfile[]>(DEMO_PATIENTS);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState<boolean>(false);
 
   // Scanning inputs: No NFC! Strictly Face, Fingerprint, ID Card
   const [activeInputMethod, setActiveInputMethod] = useState<ScanInputMethod | null>(null);
@@ -420,6 +428,8 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [idCardVerified, setIdCardVerified] = useState<boolean>(false);
   const [candidates] = useState<IdentityCandidate[]>(initialCandidates);
   const [activeCandidate] = useState<IdentityCandidate>(initialCandidates[0]);
+  const [capturedPhotoUrl, setCapturedPhotoUrl] = useState<string | null>(null);
+  const [useLiveCamera, setUseLiveCamera] = useState<boolean>(false);
 
   // Clinical Trust & Conflict
   const [clinicalTrustScore, setClinicalTrustScore] = useState<number>(71);
@@ -500,6 +510,30 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return true;
     }
     return false;
+  };
+
+  const registerPatient = (patient: PatientProfile) => {
+    setAvailablePatients((prev) => [patient, ...prev.filter(p => p.id !== patient.id)]);
+    setCurrentPatient(patient);
+    if (patient.photoUrl) {
+      setCapturedPhotoUrl(patient.photoUrl);
+    }
+    setResolvedBloodGroup(patient.bloodGroup);
+    setIsConflictResolved(!patient.hasBloodGroupConflict);
+    setClinicalTrustScore(patient.hasBloodGroupConflict ? 71 : 94);
+    setInsuranceShield((prev) => ({
+      ...prev,
+      shieldedPastRecordsCount: patient.shieldedRecordsCount,
+    }));
+    addAuditLog({
+      timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST',
+      actor: 'ABDM Citizen e-KYC',
+      role: 'Self-Enrollment',
+      action: `Created new ABHA ID ${patient.abhaId} with Aadhaar Face e-KYC`,
+      dataAccessed: 'Govt Photo ID, Biometric template, Emergency Contacts',
+      reason: 'Citizen ABHA Onboarding',
+      severity: 'normal',
+    });
   };
 
   const addAuditLog = (entry: Omit<AuditEntry, 'id' | 'hash'>) => {
@@ -739,6 +773,9 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         currentPatient,
         availablePatients,
         selectPatientByAbha,
+        registerPatient,
+        isRegisterModalOpen,
+        setIsRegisterModalOpen,
 
         activeInputMethod,
         setActiveInputMethod,
@@ -750,6 +787,10 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         idCardVerified,
         activeCandidate,
         candidates,
+        capturedPhotoUrl,
+        setCapturedPhotoUrl,
+        useLiveCamera,
+        setUseLiveCamera,
 
         scanFace,
         scanFingerprint,

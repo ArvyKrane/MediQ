@@ -11,6 +11,7 @@ import {
   Radio,
   Users,
   Search,
+  UserPlus,
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
 import type { ScreenId, UserRole } from '../../types/mediq';
@@ -40,6 +41,7 @@ export const Navbar: React.FC = () => {
     availablePatients,
     selectPatientByAbha,
     setIsInsuranceModalOpen,
+    setIsRegisterModalOpen,
     hasBreakGlassActive,
   } = useMediq();
 
@@ -218,9 +220,33 @@ export const Navbar: React.FC = () => {
                     <Search className="w-3.5 h-3.5" />
                   </button>
                 </form>
+
+                {/* Add New Citizen / Patient */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPatientMenuOpen(false);
+                    setIsRegisterModalOpen(true);
+                  }}
+                  className="mt-2 w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <UserPlus className="w-3.5 h-3.5 text-amber-600" />
+                  <span>+ Register New Citizen / ABHA</span>
+                </button>
               </div>
             )}
           </div>
+
+          {/* Quick Citizen Sign-Up Button */}
+          <button
+            type="button"
+            onClick={() => setIsRegisterModalOpen(true)}
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-950 border border-amber-300 hover:bg-amber-100 transition-colors text-xs font-semibold"
+            title="Create an ABHA ID with live face selfie e-KYC and emergency medical contacts"
+          >
+            <UserPlus className="w-3.5 h-3.5 text-amber-600" />
+            <span className="font-bold">Citizen Sign-Up</span>
+          </button>
 
           {/* Insurance Privacy Shield Button */}
           <button

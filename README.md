@@ -55,9 +55,9 @@ MEDIQ is built for tired paramedics in rocky ambulances and junior nurses in bus
 
 | Technical / Jargon Concept | MEDIQ Plain-English Display |
 | :--- | :--- |
-| *C_id Deterministic Euclidean Vector* | **"94% Match: Aarav Mehta (ABHA: aarav.mehta@abdm)"** |
+| *C_id Probabilistic Match Accuracy 94.2%* | **"✓ Identity Confirmed via Aadhaar e-KYC (ABHA: aarav.mehta@abdm)"** |
 | *Unmerged Ledger Provenance Conflict* | **"⚠️ Warning: Apollo says B+, Fortis says O+. Run bedside test before giving blood."** |
-| *Zero-Knowledge VoIP Ephemeral Session* | **"Call Mom (Priya Mehta) — Phone number stays private"** |
+| *Zero-Knowledge VoIP Ephemeral Session* | **"Call Mom (Sunita Sharma) — Phone number stays private"** |
 | *ECDSA P-256 HSM Enclave Validation* | **"Ambulance Offline Mode: Verified genuine by hospital digital signature"** |
 
 ---
@@ -161,3 +161,48 @@ CMD ["nginx", "-g", "daemon off;"]
 docker build -t mediq-app .
 docker run -p 8080:80 mediq-app
 ```
+
+---
+
+## 9. Citizen Onboarding & Live Face e-KYC Flow
+
+Anyone can register as a citizen in the app by clicking **"Register Patient / Create ABHA"**:
+1. **Govt ID Verification:** Enter full legal name, date of birth, and Aadhaar/Voter ID/Driving License/PAN number.
+2. **Live Aadhaar FaceRD Capture:** Look at the camera and take a live selfie. The facial vector template is cryptographically bound to the citizen's profile.
+3. **Emergency Essentials Only:** Select confirmed blood group, critical drug allergies (e.g. Penicillin), and primary emergency contact (e.g. Mother's phone).
+4. **Insurance Privacy Guarantee:** Reviews the DPDP Act & Purpose `EMERGENCY_CARE` shield confirming insurance TPAs cannot view past OPD or minor medical history.
+5. **ABHA Digital Card:** Issues the official digital card with QR code and instant **"Open in Ambulance / Emergency ER"** button to simulate live emergency intake of the newly registered patient.
+
+---
+
+## 10. Packaging as an Android / Tablet App
+
+MEDIQ is built mobile-first with responsive touch targets, offline service worker capability, and a full Web App Manifest.
+
+### Option A: Install directly as a Progressive Web App (PWA)
+1. Open the hosted URL in Chrome on any Android phone or tablet.
+2. Tap the browser menu `⋮` and select **"Add to Home screen"** or **"Install app"**.
+3. MEDIQ installs with full-screen standalone mode, custom launcher icon, and zero browser address bar interference.
+
+### Option B: Native Android APK via Capacitor
+To package MEDIQ as a native Android `.apk` / `.aab` for deployment to EMS tablets or the Google Play Store:
+```bash
+# 1. Install Capacitor dependencies
+npm install @capacitor/core @capacitor/cli @capacitor/android
+
+# 2. Initialize Capacitor configuration
+npx cap init "MEDIQ" "com.mediq.emergency" --web-dir="dist"
+
+# 3. Build production web bundle
+npm run build
+
+# 4. Add Android native platform
+npx cap add android
+
+# 5. Open project in Android Studio to build APK or debug on device
+npx cap open android
+```
+In Android Studio:
+- Select **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
+- Deploy the resulting APK to paramedical tablets, Samsung Knox devices, or hospital handheld scanners.
+

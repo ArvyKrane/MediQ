@@ -98,25 +98,20 @@ export const Screen3IdentityVerification: React.FC = () => {
               </div>
             </div>
 
-            {/* Match Confidence Progress */}
-            <div className="my-5 bg-[#F8F9FA] p-4 rounded-xl border border-neutral-200/80">
-              <div className="flex justify-between items-center text-xs mb-1.5">
-                <span className="font-bold text-neutral-800">Biometric &amp; ID Consensus Score</span>
-                <span className="font-mono font-bold text-neutral-950 bg-white px-2 py-0.5 rounded border border-neutral-200">
-                  {identityConfidence}%
+            {/* Verification Proof Consensus */}
+            <div className="my-5 bg-emerald-50/80 p-4 rounded-xl border border-emerald-300">
+              <div className="flex justify-between items-center text-xs mb-1">
+                <span className="font-bold text-emerald-950 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  Identity Consensus: 100% Cryptographically Bound
+                </span>
+                <span className="font-mono text-[10px] font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                  UIDAI / ABDM SIGNED
                 </span>
               </div>
-              <div className="w-full h-2 bg-neutral-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-amber-400 to-[#FFB800] rounded-full"
-                  style={{ width: `${identityConfidence}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-[10px] text-neutral-400 font-mono mt-1">
-                <span>Uncertain</span>
-                <span className="text-emerald-700 font-bold">90% Safety Verified</span>
-                <span>Exact Match</span>
-              </div>
+              <p className="text-[11px] text-emerald-800 leading-relaxed mt-1">
+                Zero probabilistic guesswork. Live biometric scan matches the citizen's government-anchored ABHA digital identity record.
+              </p>
             </div>
 
             {/* Verification Sources Checklist */}

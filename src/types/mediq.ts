@@ -67,6 +67,7 @@ export interface PatientProfile {
   dob: string;
   maskedGovId: string;
   photoPlaceholder?: string;
+  photoUrl?: string;
   bloodGroup: string;
   hasBloodGroupConflict: boolean;
   bloodGroupSources: MedicalRecordSource[];
