@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
 import { AbhaScannerModal } from '../common/AbhaScannerModal';
+import { playScanSweepSound, playSuccessChime, playConflictAlertTone } from '../../utils/audioEffects';
 import type { ScanInputMethod } from '../../types/mediq';
 
 export const Screen1EmergencyLanding: React.FC = () => {
@@ -52,9 +53,11 @@ export const Screen1EmergencyLanding: React.FC = () => {
 
   const isIdentified = identityStatus === 'VERIFIED' || identityStatus === 'MATCHED';
 
-  // Fast, slick in-place scan simulation
+  // Fast, slick in-place scan simulation with audio cues
   const handleQuickScan = (method: ScanInputMethod) => {
     setInPlaceScanning(true);
+    playScanSweepSound();
+
     if (method === 'face') {
       setScanStepText('Analyzing facial landmarks via camera...');
     } else if (method === 'fingerprint') {
@@ -74,6 +77,13 @@ export const Screen1EmergencyLanding: React.FC = () => {
     setTimeout(() => {
       setInPlaceScanning(false);
       confirmIdentity();
+      playSuccessChime();
+
+      if (currentPatient.hasBloodGroupConflict) {
+        setTimeout(() => {
+          playConflictAlertTone();
+        }, 550);
+      }
     }, 1400);
   };
 
@@ -138,6 +148,64 @@ export const Screen1EmergencyLanding: React.FC = () => {
               Emergency scans <strong>never</strong> leak past OPD history.
             </p>
           </button>
+        </div>
+      </div>
+
+      {/* ─── Golden Hour Triage & Critical Vitals HUD ──────────────── */}
+      <div className="bg-neutral-950 text-white rounded-3xl p-4 sm:p-5 border border-neutral-800 shadow-xl overflow-hidden relative">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          {/* Left: Triage Code & Golden Hour Timer */}
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-red-500 animate-ping shrink-0" />
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-mono">
+                <span className="text-red-400 font-bold uppercase tracking-wider">
+                  TRAUMA CODE RED &bull; GOLDEN HOUR CLOCK
+                </span>
+                <span className="text-neutral-500">&bull; AIIMS APEX TRAUMA</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black font-mono text-white tracking-tight mt-0.5 flex flex-wrap items-center gap-2">
+                <span>00:14:38</span>
+                <span className="text-[10px] font-mono font-bold text-amber-400 uppercase bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800">
+                  Critical Golden Window
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Center: Real-time ECG Heartbeat Waveform SVG */}
+          <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-2xl bg-neutral-900/90 border border-neutral-800">
+            <svg className="w-28 h-8 text-emerald-400" viewBox="0 0 120 32" fill="none">
+              <path
+                d="M0 16 L25 16 L32 4 L38 28 L44 12 L50 20 L56 16 L120 16"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="animate-pulse"
+              />
+            </svg>
+            <div className="font-mono text-xs">
+              <span className="text-neutral-400 block text-[9px] uppercase font-bold">SINUS TACHYCARDIA</span>
+              <span className="text-emerald-400 font-bold text-sm">108 BPM</span>
+            </div>
+          </div>
+
+          {/* Right: Trauma Vitals Trio */}
+          <div className="grid grid-cols-3 gap-2 text-center font-mono text-xs">
+            <div className="bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+              <span className="text-[9px] text-neutral-400 block font-bold">SpO2</span>
+              <span className="text-emerald-400 font-bold text-sm">94%</span>
+            </div>
+            <div className="bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+              <span className="text-[9px] text-neutral-400 block font-bold">BP (mmHg)</span>
+              <span className="text-white font-bold text-sm">108/68</span>
+            </div>
+            <div className="bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+              <span className="text-[9px] text-neutral-400 block font-bold">GCS SCORE</span>
+              <span className="text-amber-400 font-bold text-sm">8 / 15</span>
+            </div>
+          </div>
         </div>
       </div>
 
