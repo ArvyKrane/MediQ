@@ -10,16 +10,16 @@ interface StepMeta {
 }
 
 const TOUR_STEPS: StepMeta[] = [
-  { id: 'emergency-landing', title: '1. Emergency Intake', badge: 'Unknown Patient' },
-  { id: 'patient-identification', title: '2. Multimodal Scan', badge: 'Face & Biometrics' },
-  { id: 'identity-verification', title: '3. Identity Verified', badge: 'C_id: 94.2%' },
-  { id: 'clinical-trust', title: '4. Clinical Conflict', badge: 'B+ vs O+ Conflict' },
-  { id: 'emergency-contact', title: '5. Private Contact', badge: 'Masked VoIP Proxy' },
-  { id: 'patient-profile', title: '6. Trusted Profile', badge: 'Verified Evidence' },
-  { id: 'doctor-dashboard', title: '7. ER Dashboard', badge: 'Intelligent Retrieval' },
-  { id: 'access-control', title: '8. Access Matrix', badge: 'Break-Glass' },
-  { id: 'audit-log', title: '9. Immutable Audit', badge: 'Tamper-Proof' },
-  { id: 'offline-mode', title: '10. Offline Bundle', badge: 'Zero-Connectivity' },
+  { id: 'emergency-landing', title: '1. Emergency Intake', badge: 'Unconscious Patient' },
+  { id: 'patient-identification', title: '2. Biometric & ID Scan', badge: 'Face, Finger, ID Card' },
+  { id: 'identity-verification', title: '3. ABHA Identity Found', badge: 'Aarav Mehta (94% Match)' },
+  { id: 'clinical-trust', title: '4. Medical Conflict Alert', badge: 'B+ vs O+ Blood Warning' },
+  { id: 'emergency-contact', title: '5. Private Family Call', badge: 'Encrypted Proxy Call' },
+  { id: 'patient-profile', title: '6. Verified Health Profile', badge: 'Life-Saving Facts' },
+  { id: 'doctor-dashboard', title: '7. Doctor ER Dashboard', badge: 'Fast Trauma Actions' },
+  { id: 'access-control', title: '8. Insurance Privacy Shield', badge: 'Past History Protected' },
+  { id: 'audit-log', title: '9. Activity Audit Trail', badge: 'Tamper-Proof Log' },
+  { id: 'offline-mode', title: '10. Offline Ambulance Mode', badge: 'Works Without Internet' },
 ];
 
 export const DemoTourBar: React.FC = () => {

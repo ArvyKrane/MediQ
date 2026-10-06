@@ -12,12 +12,13 @@ import {
   CreditCard,
   History,
   Ambulance,
+  QrCode,
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
-import { ConfidenceMeter } from '../common/ConfidenceMeter';
 
 export const Screen3IdentityVerification: React.FC = () => {
   const {
+    currentPatient,
     identityConfidence,
     identityStatus,
     confirmIdentity,
@@ -40,24 +41,24 @@ export const Screen3IdentityVerification: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs uppercase tracking-wider text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-              Screen 03 &bull; Identity Attestation
+              Screen 03 &bull; ABHA Identity Attestation
             </span>
-            <span className="text-[11px] font-mono text-neutral-400">
-              C_id Deterministic Gate
+            <span className="text-[11px] font-mono text-emerald-700 font-bold">
+              Match Accuracy &gt; 90%
             </span>
           </div>
           <h2 className="text-2xl font-black text-neutral-950 tracking-tight mt-1">
-            Patient Identity Verification Flow
+            Patient Identity &amp; ABHA Binding
           </h2>
           <p className="text-xs text-neutral-500 mt-0.5">
-            Cross-verifying candidate face vectors against registered biometrics, national identifiers, and clinical anchors.
+            Confirmed match against national digital health database and previous hospital admission archives.
           </p>
         </div>
 
         {hasConfirmedLocal && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-mono font-bold animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>IDENTITY VERIFIED ✓</span>
+            <span>ABHA IDENTITY CONFIRMED ✓</span>
           </div>
         )}
       </div>
@@ -70,54 +71,78 @@ export const Screen3IdentityVerification: React.FC = () => {
             <div className="flex items-start justify-between pb-4 border-b border-neutral-100">
               <div>
                 <span className="font-mono text-xs text-neutral-400 uppercase font-semibold">
-                  PATIENT IDENTITY
+                  CONFIRMED PATIENT
                 </span>
                 <h3 className="text-2xl font-black text-neutral-950 mt-0.5">
-                  Aarav Mehta
+                  {currentPatient.name}
                 </h3>
-                <div className="flex items-center gap-2 mt-1 text-xs font-mono text-neutral-500">
-                  <span>Candidate ID: <strong className="text-neutral-800">MED-0192</strong></span>
+                <div className="flex flex-wrap items-center gap-2 mt-1 text-xs font-mono text-neutral-600">
+                  <span>DOB: <strong>{currentPatient.dob}</strong> ({currentPatient.age}y)</span>
                   <span>&bull;</span>
-                  <span>DOB: 14 Aug 2005 (21y)</span>
+                  <span>Gender: <strong>{currentPatient.gender}</strong></span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs font-mono">
+                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold">
+                    ABHA: {currentPatient.abhaId}
+                  </span>
+                  <span className="bg-neutral-100 text-neutral-700 px-2 py-0.5 rounded">
+                    Number: {currentPatient.abhaNumber}
+                  </span>
                 </div>
               </div>
 
               <div className="text-right">
-                <span className="text-[10px] font-mono font-bold uppercase bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded">
-                  {hasConfirmedLocal ? 'Confirmed Target' : 'Candidate Match'}
+                <span className="text-[10px] font-mono font-bold uppercase bg-amber-50 text-amber-900 border border-amber-200 px-2 py-1 rounded">
+                  {hasConfirmedLocal ? 'Confirmed & Bound' : 'Ready to Confirm'}
                 </span>
               </div>
             </div>
 
-            {/* Confidence Meter C_id */}
+            {/* Match Confidence Progress */}
             <div className="my-5 bg-[#F8F9FA] p-4 rounded-xl border border-neutral-200/80">
-              <ConfidenceMeter score={identityConfidence} showFormula={true} />
+              <div className="flex justify-between items-center text-xs mb-1.5">
+                <span className="font-bold text-neutral-800">Biometric &amp; ID Consensus Score</span>
+                <span className="font-mono font-bold text-neutral-950 bg-white px-2 py-0.5 rounded border border-neutral-200">
+                  {identityConfidence}%
+                </span>
+              </div>
+              <div className="w-full h-2 bg-neutral-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-400 to-[#FFB800] rounded-full"
+                  style={{ width: `${identityConfidence}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] text-neutral-400 font-mono mt-1">
+                <span>Uncertain</span>
+                <span className="text-emerald-700 font-bold">90% Safety Verified</span>
+                <span>Exact Match</span>
+              </div>
             </div>
 
             {/* Verification Sources Checklist */}
             <div className="space-y-2.5">
               <span className="font-mono text-xs uppercase font-bold text-neutral-500 tracking-wider block">
-                VERIFICATION SOURCES &amp; SIGNALS
+                VERIFICATION PROOFS (3 INDEPENDENT CHECKS)
               </span>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {/* FaceScan */}
+                {/* 1. FaceScan */}
                 <div className="p-3 rounded-xl border border-neutral-200/80 bg-white flex items-center justify-between shadow-2xs">
                   <div className="flex items-center gap-2.5">
                     <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700">
                       <Camera className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-xs text-neutral-900">FaceScan</div>
-                      <div className="text-[11px] font-mono text-neutral-500">94.2% Geometric Fit</div>
+                      <div className="font-bold text-xs text-neutral-900">Face Scan</div>
+                      <div className="text-[11px] font-mono text-neutral-500">94.2% Match with ABHA</div>
                     </div>
                   </div>
                   <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    ✓ Match
+                    ✓ Matched
                   </span>
                 </div>
 
-                {/* Fingerprint */}
+                {/* 2. Fingerprint */}
                 <div className="p-3 rounded-xl border border-neutral-200/80 bg-white flex items-center justify-between shadow-2xs">
                   <div className="flex items-center gap-2.5">
                     <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700">
@@ -125,39 +150,39 @@ export const Screen3IdentityVerification: React.FC = () => {
                     </div>
                     <div>
                       <div className="font-bold text-xs text-neutral-900">Fingerprint</div>
-                      <div className="text-[11px] font-mono text-neutral-500">Capacitive Minutiae</div>
+                      <div className="text-[11px] font-mono text-neutral-500">Minutiae Match Confirmed</div>
                     </div>
                   </div>
                   <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    ✓ Strong Match
+                    ✓ Matched
                   </span>
                 </div>
 
-                {/* OCR / Document */}
+                {/* 3. Physical ID Card */}
                 <div className="p-3 rounded-xl border border-neutral-200/80 bg-white flex items-center justify-between shadow-2xs">
                   <div className="flex items-center gap-2.5">
                     <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700">
-                      <FileText className="w-4 h-4" />
+                      <CreditCard className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-xs text-neutral-900">OCR / Document</div>
-                      <div className="text-[11px] font-mono text-neutral-500">Driver License Record</div>
+                      <div className="font-bold text-xs text-neutral-900">Physical ID Card</div>
+                      <div className="text-[11px] font-mono text-neutral-500">{currentPatient.maskedGovId}</div>
                     </div>
                   </div>
                   <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    ✓ Supporting
+                    ✓ Verified
                   </span>
                 </div>
 
-                {/* Cross-source consistency */}
+                {/* 4. Hospital Registry Cross-Match */}
                 <div className="p-3 rounded-xl border border-neutral-200/80 bg-white flex items-center justify-between shadow-2xs">
                   <div className="flex items-center gap-2.5">
                     <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700">
-                      <GitMerge className="w-4 h-4" />
+                      <Building className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-xs text-neutral-900">Consistency</div>
-                      <div className="text-[11px] font-mono text-neutral-500">4 External Anchor Nodes</div>
+                      <div className="font-bold text-xs text-neutral-900">Hospital Consensus</div>
+                      <div className="text-[11px] font-mono text-neutral-500">Linked to {currentPatient.linkedHospitals.length} Hospitals</div>
                     </div>
                   </div>
                   <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
@@ -176,16 +201,16 @@ export const Screen3IdentityVerification: React.FC = () => {
                   className="w-full py-3 px-6 rounded-xl bg-neutral-950 hover:bg-black text-[#FFB800] font-bold text-sm flex items-center justify-center gap-2 shadow-xs transition-all"
                 >
                   <ShieldCheck className="w-4 h-4" />
-                  <span>CONFIRM IDENTITY (BIND PATIENT)</span>
+                  <span>CONFIRM IDENTITY &amp; PULL EMERGENCY RECORDS</span>
                 </button>
               ) : (
                 <div className="w-full space-y-2">
                   <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      IDENTITY VERIFIED &bull; AARAV MEHTA (MED-0192)
+                      IDENTITY LOCKED &bull; {currentPatient.name.toUpperCase()} ({currentPatient.abhaId})
                     </span>
-                    <span className="font-mono text-[10px] text-emerald-700">LOCK ENGAGED</span>
+                    <span className="font-mono text-[10px] text-emerald-700">ACTIVE INTAKE</span>
                   </div>
 
                   <button
@@ -193,7 +218,7 @@ export const Screen3IdentityVerification: React.FC = () => {
                     onClick={() => setCurrentScreen('clinical-trust')}
                     className="w-full py-3 px-6 rounded-xl bg-neutral-950 hover:bg-black text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all group"
                   >
-                    <span className="text-[#FFB800]">VERIFY MEDICAL RECORD</span>
+                    <span className="text-[#FFB800]">INSPECT MEDICAL RECORDS &amp; CONFLICTS</span>
                     <ArrowRight className="w-4 h-4 text-[#FFB800] group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
@@ -207,84 +232,57 @@ export const Screen3IdentityVerification: React.FC = () => {
           <div className="bg-white rounded-2xl border border-neutral-200/90 p-5 shadow-xs">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
               <span className="font-mono text-xs uppercase font-bold text-neutral-900 tracking-wider">
-                IDENTITY EVIDENCE TIMELINE
+                HOW THIS PATIENT WAS IDENTIFIED
               </span>
               <span className="text-[11px] font-mono text-neutral-400">
-                Audited Anchors
+                Timeline
               </span>
             </div>
 
             <div className="relative pl-6 space-y-6 mt-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-neutral-200">
-              {/* Event 1: Hospital Registration */}
+              {/* Event 1 */}
               <div className="relative">
                 <div className="absolute -left-6 top-0 w-4 h-4 rounded-full bg-neutral-900 border-2 border-white flex items-center justify-center" />
                 <div className="flex items-center justify-between text-xs font-mono">
                   <span className="font-bold text-neutral-900 flex items-center gap-1.5">
                     <Building className="w-3.5 h-3.5 text-neutral-500" />
-                    Hospital Registration
+                    Apollo Hospital Registration
                   </span>
-                  <span className="text-neutral-400">12 Jan 2024</span>
+                  <span className="text-neutral-400">2024</span>
                 </div>
                 <p className="text-xs text-neutral-600 mt-1">
-                  Apollo Speciality Hospital (Delhi). Inpatient intake biometric registration token logged.
+                  Patient registered under national ABHA initiative during outpatient clinic visit.
                 </p>
-                <div className="text-[10px] font-mono text-neutral-400 mt-0.5">
-                  Anchor: APOLLO_REG_#99201
-                </div>
               </div>
 
-              {/* Event 2: Government ID */}
+              {/* Event 2 */}
               <div className="relative">
                 <div className="absolute -left-6 top-0 w-4 h-4 rounded-full bg-neutral-900 border-2 border-white flex items-center justify-center" />
                 <div className="flex items-center justify-between text-xs font-mono">
                   <span className="font-bold text-neutral-900 flex items-center gap-1.5">
                     <CreditCard className="w-3.5 h-3.5 text-neutral-500" />
-                    Government ID (UIDAI)
+                    Government ID Authentication
                   </span>
-                  <span className="text-neutral-400">08 Aug 2022</span>
+                  <span className="text-neutral-400">2022</span>
                 </div>
                 <p className="text-xs text-neutral-600 mt-1">
-                  Biometric deduplication hash match. Photo and fingerprint iris hash consistency: 99.8%.
+                  Facial biometrics and Aadhaar / Driving License linked to ABHA profile.
                 </p>
-                <div className="text-[10px] font-mono text-neutral-400 mt-0.5">
-                  National Vault Token: UID-IND-8924
-                </div>
               </div>
 
-              {/* Event 3: Previous Medical Record */}
-              <div className="relative">
-                <div className="absolute -left-6 top-0 w-4 h-4 rounded-full bg-neutral-900 border-2 border-white flex items-center justify-center" />
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="font-bold text-neutral-900 flex items-center gap-1.5">
-                    <History className="w-3.5 h-3.5 text-neutral-500" />
-                    Previous Medical Record
-                  </span>
-                  <span className="text-neutral-400">19 Oct 2023</span>
-                </div>
-                <p className="text-xs text-neutral-600 mt-1">
-                  Fortis Memorial ER admission. Pediatric allergy flag (Penicillin) attached to record.
-                </p>
-                <div className="text-[10px] font-mono text-neutral-400 mt-0.5">
-                  Record ID: FTM-EMERG-4402
-                </div>
-              </div>
-
-              {/* Event 4: Emergency Registration */}
+              {/* Event 3 */}
               <div className="relative">
                 <div className="absolute -left-6 top-0 w-4 h-4 rounded-full bg-[#FFB800] border-2 border-neutral-900 flex items-center justify-center" />
                 <div className="flex items-center justify-between text-xs font-mono">
                   <span className="font-bold text-neutral-900 flex items-center gap-1.5">
                     <Ambulance className="w-3.5 h-3.5 text-amber-600" />
-                    Emergency Scene Intake
+                    Ambulance Intake (Live)
                   </span>
-                  <span className="text-amber-700 font-bold">23:32 IST (Live)</span>
+                  <span className="text-amber-700 font-bold">Today</span>
                 </div>
                 <p className="text-xs text-neutral-600 mt-1">
-                  Ambulance Unit #04 camera vector stream automatically bound to candidate CAND-0192.
+                  Field camera match completed in 1.6 seconds without requiring any NFC card.
                 </p>
-                <div className="text-[10px] font-mono text-amber-700 font-bold mt-0.5">
-                  Session Token: EMS-RIG12-9901
-                </div>
               </div>
             </div>
           </div>

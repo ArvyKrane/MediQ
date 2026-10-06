@@ -15,6 +15,7 @@ import { useMediq } from '../../context/MediqContext';
 
 export const Screen5EmergencyContact: React.FC = () => {
   const {
+    currentPatient,
     setIsCallModalOpen,
     isContactShared,
     setIsContactShared,
@@ -29,9 +30,9 @@ export const Screen5EmergencyContact: React.FC = () => {
       timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST',
       actor: `${userRole.toUpperCase()}`,
       role: 'Emergency Dispatcher',
-      action: 'Authorized responder token dispatched to attending hospital trauma team',
-      dataAccessed: 'Virtual contact handle (Priya Mehta proxy token: PROXY-PM-4821)',
-      reason: 'Critical trauma notification & family liaison',
+      action: `Authorized emergency contact proxy token shared with hospital trauma team`,
+      dataAccessed: `Contact: ${currentPatient.emergencyContact.name} (${currentPatient.emergencyContact.relationship})`,
+      reason: 'Critical trauma notification to next of kin',
       severity: 'normal',
     });
   };
@@ -43,10 +44,10 @@ export const Screen5EmergencyContact: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs uppercase tracking-wider text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-              Screen 05 &bull; Privacy-Preserving Dispatch
+              Screen 05 &bull; Family Communication
             </span>
-            <span className="text-[11px] font-mono text-neutral-400">
-              Zero-Knowledge VoIP Bridge
+            <span className="text-[11px] font-mono text-emerald-700 font-bold">
+              Zero-Leakage Audio Bridge
             </span>
           </div>
           <h2 className="text-2xl font-black text-neutral-950 tracking-tight mt-1">
@@ -70,17 +71,17 @@ export const Screen5EmergencyContact: React.FC = () => {
             <div className="flex items-start justify-between pb-4 border-b border-neutral-100">
               <div className="flex items-center gap-3.5">
                 <div className="w-14 h-14 rounded-2xl bg-neutral-950 text-[#FFB800] flex items-center justify-center font-bold text-lg shadow-xs">
-                  PM
+                  {currentPatient.emergencyContact.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
                   <span className="font-mono text-[10px] text-neutral-400 uppercase font-semibold">
                     Primary Emergency Contact
                   </span>
                   <h3 className="text-xl font-black text-neutral-950">
-                    Priya Mehta
+                    {currentPatient.emergencyContact.name}
                   </h3>
                   <div className="flex items-center gap-2 mt-0.5 text-xs font-mono text-neutral-500">
-                    <span>Relationship: <strong className="text-neutral-900 font-sans">Mother</strong></span>
+                    <span>Relationship: <strong className="text-neutral-900 font-sans">{currentPatient.emergencyContact.relationship}</strong></span>
                     <span>&bull;</span>
                     <span className="text-emerald-700 font-semibold">Legal Next of Kin</span>
                   </div>
@@ -96,23 +97,23 @@ export const Screen5EmergencyContact: React.FC = () => {
             <div className="my-6 p-4 rounded-xl bg-[#F8F9FA] border border-neutral-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-[10px] font-mono text-neutral-400 uppercase font-bold block">
-                  Telephony Identifier (Masked)
+                  Guardian Phone Number (Protected)
                 </span>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="font-mono text-xl font-black tracking-wider text-neutral-900">
-                    +91 &bull;&bull;&bull;&bull;&bull;&bull; 4821
+                    {currentPatient.emergencyContact.maskedPhone}
                   </span>
                   <EyeOff className="w-4 h-4 text-neutral-400" />
                 </div>
                 <div className="text-[11px] font-mono text-neutral-500 mt-0.5">
-                  Raw MSISDN sealed in secure hardware enclave.
+                  Actual phone number stays private to prevent harassment and spam.
                 </div>
               </div>
 
               <div className="text-right">
                 <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  E2E Encrypted Relay
+                  Direct Encrypted Call
                 </span>
               </div>
             </div>
@@ -120,11 +121,8 @@ export const Screen5EmergencyContact: React.FC = () => {
             {/* Explainer Quotation */}
             <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 mb-6">
               <p className="text-xs font-medium text-amber-950 leading-relaxed">
-                "Personal contact information remains hidden. MEDIQ connects authorized responders without exposing the private number."
+                "Personal contact information remains hidden. MEDIQ connects authorized emergency responders without exposing the private mobile number to personal phones."
               </p>
-              <div className="mt-2 text-[10px] font-mono text-amber-800">
-                Prevents data leakage, spam, and stalking while ensuring 100% emergency reachability.
-              </div>
             </div>
 
             {/* Action Buttons */}
@@ -150,7 +148,7 @@ export const Screen5EmergencyContact: React.FC = () => {
                 {isContactShared ? (
                   <>
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>SHARED WITH DISPATCH ✓</span>
+                    <span>SHARED WITH HOSPITAL ER ✓</span>
                   </>
                 ) : (
                   <>
@@ -168,28 +166,23 @@ export const Screen5EmergencyContact: React.FC = () => {
           <div className="bg-white rounded-2xl border border-neutral-200/90 p-5 shadow-xs">
             <h3 className="font-bold text-sm text-neutral-950 flex items-center gap-2 pb-3 border-b border-neutral-100">
               <Lock className="w-4 h-4 text-neutral-500" />
-              <span>ACCESS VERIFICATION TELEMETRY</span>
+              <span>COMMUNICATION ACCESS TELEMETRY</span>
             </h3>
 
             <div className="space-y-3 mt-3 text-xs">
               <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#F8F9FA] border border-neutral-200 font-mono">
-                <span className="text-neutral-500">Responder Identity:</span>
+                <span className="text-neutral-500">Authorized Caller:</span>
                 <span className="font-bold text-neutral-900">Dr. Sharma / Paramedic Rao</span>
               </div>
 
               <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#F8F9FA] border border-neutral-200 font-mono">
-                <span className="text-neutral-500">Authorization Proof:</span>
-                <span className="text-emerald-700 font-bold">EMS_P256_CERT_08</span>
+                <span className="text-neutral-500">Call Channel:</span>
+                <span className="text-emerald-700 font-bold">Secure MEDIQ Relay</span>
               </div>
 
               <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#F8F9FA] border border-neutral-200 font-mono">
                 <span className="text-neutral-500">Proxy Session TTL:</span>
                 <span className="font-bold text-neutral-900">45 Minutes Remaining</span>
-              </div>
-
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#F8F9FA] border border-neutral-200 font-mono">
-                <span className="text-neutral-500">Call Recording:</span>
-                <span className="text-neutral-600">Encrypted Legal Archive Only</span>
               </div>
             </div>
 

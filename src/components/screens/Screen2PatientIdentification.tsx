@@ -11,17 +11,18 @@ import {
   ChevronRight,
   User,
   Fingerprint,
+  CreditCard,
+  Building2,
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
 
 export const Screen2PatientIdentification: React.FC = () => {
-  const { candidates, setCurrentScreen, confirmIdentity } = useMediq();
+  const { candidates, currentPatient, setCurrentScreen, confirmIdentity } = useMediq();
   const [isScanningActive, setIsScanningActive] = useState(true);
 
   const handleVerifyCandidate = (candidateId: string) => {
-    if (candidateId === 'CAND-0192') {
-      setCurrentScreen('identity-verification');
-    }
+    confirmIdentity();
+    setCurrentScreen('identity-verification');
   };
 
   return (
@@ -34,14 +35,14 @@ export const Screen2PatientIdentification: React.FC = () => {
               Screen 02 &bull; Multimodal Intake
             </span>
             <span className="text-[11px] font-mono text-neutral-400">
-              Vector Pipeline v3.2
+              ABHA Identity Matcher
             </span>
           </div>
           <h2 className="text-2xl font-black text-neutral-950 tracking-tight mt-1">
-            Multimodal Patient Identification
+            Patient Biometric &amp; ID Card Identification
           </h2>
           <p className="text-xs text-neutral-500 mt-0.5">
-            Real-time biometric facial triangulation cross-referenced with regional hospital registries.
+            Face and document matching cross-referenced with national ABHA / hospital registries without relying on physical NFC tags.
           </p>
         </div>
 
@@ -52,15 +53,15 @@ export const Screen2PatientIdentification: React.FC = () => {
             className="px-3 py-1.5 rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 text-xs font-mono font-medium text-neutral-700 flex items-center gap-1.5"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isScanningActive ? 'animate-spin' : ''}`} />
-            <span>{isScanningActive ? 'Sensor Active' : 'Sensor Paused'}</span>
+            <span>{isScanningActive ? 'Camera Live' : 'Paused'}</span>
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Side: Camera / Face Scan Viewfinder (6 cols) */}
+        {/* Left Side: Camera & Face Mesh Viewfinder (6 cols) */}
         <div className="lg:col-span-6 bg-neutral-950 text-white rounded-2xl p-6 border border-neutral-800 shadow-xl relative overflow-hidden flex flex-col justify-between">
-          {/* Top Viewfinder Telemetry */}
+          {/* Top Telemetry */}
           <div className="flex items-center justify-between font-mono text-[11px] text-neutral-400 border-b border-neutral-800 pb-3 z-10">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
@@ -70,29 +71,26 @@ export const Screen2PatientIdentification: React.FC = () => {
             <div className="text-amber-400 font-bold">EXPOSURE: OPTIMAL</div>
           </div>
 
-          {/* Camera Frame & Realistic Face Placeholder Illustration */}
-          <div className="relative my-8 py-8 flex flex-col items-center justify-center">
-            {/* Outer Target Box with golden corner brackets */}
+          {/* Viewfinder Target */}
+          <div className="relative my-6 py-6 flex flex-col items-center justify-center">
             <div className="relative w-64 h-72 rounded-2xl border-2 border-neutral-700 bg-neutral-900/90 flex items-center justify-center overflow-hidden shadow-2xl">
-              {/* Golden corner brackets */}
+              {/* Corner brackets */}
               <div className="absolute top-2 left-2 w-5 h-5 border-t-2 border-l-2 border-[#FFB800]" />
               <div className="absolute top-2 right-2 w-5 h-5 border-t-2 border-r-2 border-[#FFB800]" />
               <div className="absolute bottom-2 left-2 w-5 h-5 border-b-2 border-l-2 border-[#FFB800]" />
               <div className="absolute bottom-2 right-2 w-5 h-5 border-b-2 border-r-2 border-[#FFB800]" />
 
-              {/* Laser Scanline */}
+              {/* Scanline */}
               {isScanningActive && <div className="animate-scanline" />}
 
-              {/* Stylized Face Biometric Grid Placeholder */}
+              {/* Biometric Face Mesh */}
               <div className="relative flex flex-col items-center justify-center">
-                {/* Clean SVG Head & Facial Keypoint Mesh */}
                 <svg
                   className="w-44 h-52 text-neutral-400"
                   viewBox="0 0 200 240"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  {/* Head Contour */}
                   <path
                     d="M100 20C55 20 35 60 35 110C35 160 65 210 100 220C135 210 165 160 165 110C165 60 145 20 100 20Z"
                     stroke="#FFB800"
@@ -100,76 +98,52 @@ export const Screen2PatientIdentification: React.FC = () => {
                     strokeDasharray="4 4"
                     fill="rgba(255, 184, 0, 0.04)"
                   />
-                  {/* Eye Level Line */}
                   <line x1="50" y1="95" x2="150" y2="95" stroke="#FFB800" strokeWidth="0.8" opacity="0.6" />
-                  {/* Nose Centerline */}
                   <line x1="100" y1="60" x2="100" y2="150" stroke="#FFB800" strokeWidth="0.8" opacity="0.6" />
-                  {/* Mouth Line */}
                   <line x1="75" y1="165" x2="125" y2="165" stroke="#FFB800" strokeWidth="0.8" opacity="0.6" />
 
-                  {/* Facial Landmark Keypoints */}
                   <circle cx="75" cy="95" r="3" fill="#FFB800" />
                   <circle cx="125" cy="95" r="3" fill="#FFB800" />
                   <circle cx="100" cy="130" r="3" fill="#FFB800" />
                   <circle cx="85" cy="165" r="2.5" fill="#FFB800" />
                   <circle cx="115" cy="165" r="2.5" fill="#FFB800" />
                   <circle cx="100" cy="195" r="2.5" fill="#FFB800" />
-                  <circle cx="52" cy="115" r="2" fill="#FFB800" opacity="0.7" />
-                  <circle cx="148" cy="115" r="2" fill="#FFB800" opacity="0.7" />
-                  <circle cx="70" cy="55" r="2" fill="#FFB800" opacity="0.7" />
-                  <circle cx="130" cy="55" r="2" fill="#FFB800" opacity="0.7" />
 
-                  {/* Connecting biometric triangulation mesh */}
                   <polygon
                     points="75,95 125,95 100,130"
                     stroke="rgba(255,184,0,0.4)"
                     strokeWidth="0.7"
                     fill="rgba(255,184,0,0.06)"
                   />
-                  <polygon
-                    points="75,95 100,130 85,165"
-                    stroke="rgba(255,184,0,0.3)"
-                    strokeWidth="0.7"
-                  />
-                  <polygon
-                    points="125,95 100,130 115,165"
-                    stroke="rgba(255,184,0,0.3)"
-                    strokeWidth="0.7"
-                  />
                 </svg>
 
-                {/* Floating Tag */}
                 <div className="absolute bottom-2 bg-black/80 px-2.5 py-1 rounded-md border border-[#FFB800]/50 text-[10px] font-mono text-[#FFB800] tracking-wider">
-                  CONFIDENCE: 94.2%
+                  FACE MATCH: 94.2%
                 </div>
               </div>
             </div>
 
-            {/* Scanning Status Text */}
             <div className="mt-4 text-center">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-xs font-mono text-[#FFB800]">
                 <Scan className="w-3.5 h-3.5 animate-pulse" />
-                <span>Analyzing facial features...</span>
+                <span>Matching face biometrics to ABHA photo database...</span>
               </div>
-              <p className="text-[11px] text-neutral-400 font-mono mt-1.5">
-                68 geometric landmarks extracted &bull; Distance Euclidean metric: 0.058
-              </p>
             </div>
           </div>
 
           {/* Bottom Diagnostics Bar */}
           <div className="bg-neutral-900/80 p-3 rounded-xl border border-neutral-800 text-[11px] font-mono grid grid-cols-3 text-center gap-2">
             <div>
-              <span className="text-neutral-500 block text-[10px]">OCCLUSION</span>
-              <span className="text-emerald-400 font-bold">12% (Clear)</span>
+              <span className="text-neutral-500 block text-[10px]">FACIAL KEYPOINTS</span>
+              <span className="text-emerald-400 font-bold">68 Extracted</span>
             </div>
             <div>
-              <span className="text-neutral-500 block text-[10px]">LIGHTING</span>
-              <span className="text-emerald-400 font-bold">480 Lux (Good)</span>
+              <span className="text-neutral-500 block text-[10px]">ID CARD OCR</span>
+              <span className="text-blue-400 font-bold">Aadhaar Found</span>
             </div>
             <div>
-              <span className="text-neutral-500 block text-[10px]">CANDIDATES</span>
-              <span className="text-[#FFB800] font-bold">3 Extracted</span>
+              <span className="text-neutral-500 block text-[10px]">ABHA STATUS</span>
+              <span className="text-[#FFB800] font-bold">Resolved ✓</span>
             </div>
           </div>
         </div>
@@ -180,14 +154,14 @@ export const Screen2PatientIdentification: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs uppercase font-bold text-neutral-900 tracking-wider">
-                  CANDIDATE MATCHES (RANKED)
+                  MATCHED CANDIDATES FROM ABHA
                 </span>
                 <span className="bg-amber-100 text-amber-900 text-[10px] font-mono px-2 py-0.5 rounded font-bold">
-                  Top 3
+                  Top Match
                 </span>
               </div>
               <span className="text-xs font-mono text-neutral-400">
-                Sorted by Vector Proximity
+                Sorted by Match Score
               </span>
             </div>
 
@@ -202,16 +176,19 @@ export const Screen2PatientIdentification: React.FC = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-black text-base text-neutral-950">
-                          Aarav Mehta
+                          {currentPatient.name}
                         </h3>
                         <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.2 rounded font-bold border border-emerald-200">
                           Primary Match
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-neutral-500 font-mono mt-1">
-                        <span>DOB: <strong className="text-neutral-800">14 Aug 2005</strong></span>
+                      <div className="flex items-center gap-2 text-xs text-neutral-500 font-mono mt-1">
+                        <span>DOB: <strong className="text-neutral-800">{currentPatient.dob}</strong></span>
                         <span>&bull;</span>
-                        <span>ID: <strong className="text-neutral-800">MED-0192</strong></span>
+                        <span>Age: <strong className="text-neutral-800">{currentPatient.age}y</strong></span>
+                      </div>
+                      <div className="text-xs font-mono text-emerald-800 font-bold mt-1">
+                        ABHA: {currentPatient.abhaId}
                       </div>
                     </div>
                   </div>
@@ -227,17 +204,12 @@ export const Screen2PatientIdentification: React.FC = () => {
                 {/* Status Telemetry */}
                 <div className="grid grid-cols-2 gap-2 my-3 text-xs font-mono">
                   <div className="bg-white p-2 rounded-lg border border-neutral-200/80">
-                    <span className="text-neutral-400 text-[10px] block">FINGERPRINT</span>
-                    <span className="font-bold text-amber-600 flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      Pending Secondary
-                    </span>
+                    <span className="text-neutral-400 text-[10px] block">LINKED IDENTIFIER</span>
+                    <span className="font-bold text-neutral-900">{currentPatient.maskedGovId}</span>
                   </div>
                   <div className="bg-white p-2 rounded-lg border border-neutral-200/80">
-                    <span className="text-neutral-400 text-[10px] block">LAST REGISTRATION</span>
-                    <span className="font-medium text-neutral-700 truncate">
-                      Apollo Hospital (2024)
-                    </span>
+                    <span className="text-neutral-400 text-[10px] block">HOSPITAL RECORDS</span>
+                    <span className="font-bold text-neutral-900">{currentPatient.linkedHospitals.length} Linked Hospitals</span>
                   </div>
                 </div>
 
@@ -248,17 +220,17 @@ export const Screen2PatientIdentification: React.FC = () => {
                   </span>
                   <button
                     type="button"
-                    onClick={() => handleVerifyCandidate('CAND-0192')}
+                    onClick={() => handleVerifyCandidate(currentPatient.id)}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-neutral-950 hover:bg-black text-[#FFB800] text-xs font-bold shadow-xs hover:shadow transition-all group"
                   >
-                    <span>VERIFY IDENTITY</span>
+                    <span>VERIFY &amp; PULL RECORDS</span>
                     <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 </div>
               </div>
 
               {/* Candidate #02 — Arjun Mehta */}
-              <div className="p-4 rounded-xl border border-neutral-200 bg-white hover:border-neutral-300 transition-all opacity-85">
+              <div className="p-4 rounded-xl border border-neutral-200 bg-white hover:border-neutral-300 transition-all opacity-80">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-600 flex items-center justify-center font-bold text-sm shrink-0">
@@ -274,7 +246,7 @@ export const Screen2PatientIdentification: React.FC = () => {
                         </span>
                       </div>
                       <div className="text-xs text-neutral-500 font-mono mt-0.5">
-                        DOB: 02 Mar 1999 &bull; ID: MED-0841
+                        DOB: 02 Mar 1999 &bull; ABHA: arjun.m@abdm
                       </div>
                     </div>
                   </div>
@@ -288,39 +260,8 @@ export const Screen2PatientIdentification: React.FC = () => {
                 </div>
 
                 <div className="mt-3 flex items-center justify-between text-xs pt-2 border-t border-neutral-100 font-mono text-neutral-500">
-                  <span>Below 90% primary threshold</span>
+                  <span>Below 90% primary safety threshold</span>
                   <span className="text-neutral-400">Fingerprint: Mismatched</span>
-                </div>
-              </div>
-
-              {/* Candidate #03 — Unknown */}
-              <div className="p-4 rounded-xl border border-neutral-200 bg-white hover:border-neutral-300 transition-all opacity-70">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-400 flex items-center justify-center font-bold text-sm shrink-0">
-                      #03
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-sm text-neutral-800">
-                        Unknown / Demographic Outlier
-                      </h3>
-                      <div className="text-xs text-neutral-400 font-mono mt-0.5">
-                        Est. 2000-2005 &bull; No ID match
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-xs font-mono text-neutral-400">Face Match</div>
-                    <div className="text-lg font-semibold font-mono text-neutral-500">
-                      43.1%
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between text-xs pt-2 border-t border-neutral-100 font-mono text-neutral-400">
-                  <span>Insufficient biometric landmarks</span>
-                  <span>Rejected</span>
                 </div>
               </div>
             </div>

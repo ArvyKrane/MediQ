@@ -5,6 +5,7 @@ import { DemoTourBar } from './components/common/DemoTourBar';
 import { EvidenceDrawer } from './components/common/EvidenceDrawer';
 import { BreakGlassModal } from './components/common/BreakGlassModal';
 import { MediqCallModal } from './components/common/MediqCallModal';
+import { InsuranceShieldModal } from './components/common/InsuranceShieldModal';
 
 // 10 Screens
 import { Screen1EmergencyLanding } from './components/screens/Screen1EmergencyLanding';
@@ -62,6 +63,7 @@ const MainContent: React.FC = () => {
       <EvidenceDrawer />
       <BreakGlassModal />
       <MediqCallModal />
+      <InsuranceShieldModal />
 
       {/* Persistent Floating 2-Minute Demo Flow Guide */}
       <DemoTourBar />

@@ -13,18 +13,21 @@ import {
   HelpCircle,
   ExternalLink,
   Building,
+  EyeOff,
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
 import { VerificationBadge } from '../common/VerificationBadge';
 
 export const Screen6PatientProfile: React.FC = () => {
   const {
+    currentPatient,
     resolvedBloodGroup,
     isConflictResolved,
     clinicalTrustScore,
     identityConfidence,
     setSelectedEvidenceItem,
     setCurrentScreen,
+    setIsInsuranceModalOpen,
   } = useMediq();
 
   return (
@@ -34,23 +37,23 @@ export const Screen6PatientProfile: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-neutral-100">
           <div className="flex items-start sm:items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-neutral-950 text-[#FFB800] flex items-center justify-center font-black text-xl shadow-xs shrink-0">
-              AM
+              {currentPatient.name.split(' ').map(n => n[0]).join('')}
             </div>
             <div>
               <div className="flex items-center gap-2.5">
                 <h1 className="text-2xl font-black text-neutral-950 tracking-tight">
-                  Aarav Mehta
+                  {currentPatient.name}
                 </h1>
                 <span className="font-mono text-xs bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded font-bold">
-                  MED-0192
+                  {currentPatient.id}
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500 font-mono mt-1">
-                <span>DOB: 14 Aug 2005 (21y)</span>
+                <span>DOB: {currentPatient.dob} ({currentPatient.age}y)</span>
                 <span>&bull;</span>
-                <span>Male</span>
+                <span>{currentPatient.gender}</span>
                 <span>&bull;</span>
-                <span>National ID: IND-••••-8924</span>
+                <span className="text-emerald-800 font-bold">ABHA: {currentPatient.abhaId}</span>
               </div>
             </div>
           </div>
@@ -68,30 +71,30 @@ export const Screen6PatientProfile: React.FC = () => {
               </span>
             </div>
 
-            {/* Identity Confidence */}
+            {/* Match Accuracy */}
             <div className="bg-[#F8F9FA] p-3 rounded-xl border border-neutral-200/80">
               <span className="text-[10px] text-neutral-400 block uppercase font-bold">
-                C_ID CONFIDENCE
+                MATCH ACCURACY
               </span>
               <span className="text-xs font-bold text-neutral-900 mt-0.5 block">
                 {identityConfidence.toFixed(1)}%
               </span>
             </div>
 
-            {/* Clinical Trust */}
+            {/* Record Reliability */}
             <div className="bg-[#F8F9FA] p-3 rounded-xl border border-neutral-200/80">
               <span className="text-[10px] text-neutral-400 block uppercase font-bold">
-                C_CLIN TRUST
+                CLINICAL TRUST
               </span>
               <span className="text-xs font-bold text-emerald-700 mt-0.5 block">
                 {clinicalTrustScore}%
               </span>
             </div>
 
-            {/* Access */}
+            {/* Access Status */}
             <div className="bg-neutral-950 text-[#FFB800] p-3 rounded-xl border border-neutral-800">
               <span className="text-[10px] text-neutral-400 block uppercase font-bold">
-                ACCESS STATUS
+                ACCESS
               </span>
               <span className="text-xs font-bold flex items-center gap-1 mt-0.5">
                 <UserCheck className="w-3.5 h-3.5" />
@@ -101,20 +104,24 @@ export const Screen6PatientProfile: React.FC = () => {
           </div>
         </div>
 
-        {/* Sub-header notification */}
-        <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-neutral-500">
+        {/* Insurance Shield & Evidence Sub-bar */}
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>
-              Zero-knowledge medical record reconstructed from 3 multi-hospital source nodes.
-            </span>
+            <button
+              onClick={() => setIsInsuranceModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold hover:bg-emerald-100 transition-colors"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>{currentPatient.shieldedRecordsCount} Non-Emergency Past Records Protected from Insurance Crawlers</span>
+            </button>
           </div>
+
           <button
-            onClick={() => setSelectedEvidenceItem('Complete Dossier Merkle Proof')}
-            className="text-neutral-900 font-bold hover:text-amber-600 underline underline-offset-4 flex items-center gap-1"
+            onClick={() => setSelectedEvidenceItem('Complete Emergency Capsule')}
+            className="text-neutral-900 font-bold hover:text-amber-600 underline flex items-center gap-1"
           >
             <HelpCircle className="w-3.5 h-3.5" />
-            <span>Why can I trust this?</span>
+            <span>Why can I trust this data? →</span>
           </button>
         </div>
       </div>
@@ -124,10 +131,10 @@ export const Screen6PatientProfile: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-mono text-xs uppercase font-bold text-neutral-900 tracking-wider">
-              CRITICAL MEDICAL INFORMATION (TRUST-ATTRIBUTED)
+              CRITICAL LIFE-SAVING MEDICAL INFORMATION
             </h2>
             <p className="text-xs text-neutral-500 mt-0.5">
-              Every data atom carries independent cryptographic verification and confidence weighting.
+              Only high-priority emergency fields are retrieved; non-emergency OPD history remains shielded.
             </p>
           </div>
         </div>
@@ -143,21 +150,29 @@ export const Screen6PatientProfile: React.FC = () => {
                 <VerificationBadge level={isConflictResolved ? 'High' : 'Disputed'} />
               </div>
               <div className="text-3xl font-black font-mono text-neutral-950">
-                {isConflictResolved ? resolvedBloodGroup : 'B+ / O+ [DISPUTED]'}
+                {isConflictResolved ? (
+                  resolvedBloodGroup
+                ) : currentPatient.hasBloodGroupConflict ? (
+                  'B+ / O+ [DISPUTED]'
+                ) : (
+                  currentPatient.bloodGroup
+                )}
               </div>
               <p className="text-xs text-neutral-600 mt-2">
                 {isConflictResolved
-                  ? 'Verified across 2 independent sources (Apollo & Apex Lab)'
-                  : 'Conflict detected between Apollo (B+) and Fortis (O+)'}
+                  ? 'Confirmed by attending doctor via bedside agglutination test.'
+                  : currentPatient.hasBloodGroupConflict
+                  ? 'Conflict detected between Apollo Hospital (B+) and Fortis (O+).'
+                  : 'Consistent across linked medical centers.'}
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
               <span className="text-[11px] font-mono text-neutral-500">
-                {isConflictResolved ? 'Dual Signed' : 'Dispute Active'}
+                {isConflictResolved ? 'Bedside Verified' : 'Safety Check Active'}
               </span>
               <button
                 onClick={() => setSelectedEvidenceItem('Blood Group')}
-                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline underline-offset-4"
+                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline"
               >
                 Inspect Proof →
               </button>
@@ -169,73 +184,73 @@ export const Screen6PatientProfile: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase">
-                  Allergies
+                  Known Allergies
                 </span>
                 <VerificationBadge level="High" text="Trust: HIGH" />
               </div>
               <div className="text-2xl font-black text-red-600">
-                Penicillin
+                {currentPatient.allergies.map(a => a.name).join(', ')}
               </div>
               <p className="text-xs text-neutral-600 mt-2">
-                Severe anaphylactoid reaction recorded during pediatric treatment at Fortis Memorial (2023).
+                {currentPatient.allergies[0]?.source || 'Reported severe anaphylactoid hypersensitivity.'}
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
+              <span className="text-[11px] font-mono text-red-600 font-bold">
+                DO NOT ADMINISTER
+              </span>
+              <button
+                onClick={() => setSelectedEvidenceItem('Allergy Proof')}
+                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline"
+              >
+                Inspect Proof →
+              </button>
+            </div>
+          </div>
+
+          {/* Medications */}
+          <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase">
+                  Active Emergency Medications
+                </span>
+                <VerificationBadge level="Medium" text="Trust: MEDIUM" />
+              </div>
+              <div className="text-base font-bold text-neutral-900">
+                {currentPatient.medications.map(m => `${m.name} (${m.dosage})`).join(', ')}
+              </div>
+              <p className="text-xs text-neutral-500 mt-2">
+                Active prescriptions pulled from linked hospital pharmacies.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
               <span className="text-[11px] font-mono text-neutral-500">
-                Verified
+                {currentPatient.medications.length} Active Rx
               </span>
               <button
-                onClick={() => setSelectedEvidenceItem('Penicillin Allergy')}
-                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline underline-offset-4"
+                onClick={() => setSelectedEvidenceItem('Medications')}
+                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline"
               >
                 Inspect Proof →
               </button>
             </div>
           </div>
 
-          {/* Medication */}
+          {/* Acute Conditions */}
           <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase">
-                  Current Medication
-                </span>
-                <VerificationBadge level="Low" text="Trust: LOW" />
-              </div>
-              <div className="text-lg font-bold text-neutral-900">
-                Unknown / Incomplete Log
-              </div>
-              <p className="text-xs text-neutral-500 mt-2">
-                Partial mention of Salbutamol inhaler PRN; no active outpatient pharmacy confirmation.
-              </p>
-            </div>
-            <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
-              <span className="text-[11px] font-mono text-neutral-400">
-                Single Outpatient Ref
-              </span>
-              <button
-                onClick={() => setSelectedEvidenceItem('Medication Registry')}
-                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline underline-offset-4"
-              >
-                Inspect Proof →
-              </button>
-            </div>
-          </div>
-
-          {/* Known Conditions */}
-          <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase">
-                  Known Conditions
+                  Acute Conditions
                 </span>
                 <VerificationBadge level="High" text="Trust: HIGH" />
               </div>
-              <div className="text-xl font-bold text-neutral-900">
-                Bronchial Asthma (Mild)
+              <div className="text-lg font-bold text-neutral-900">
+                {currentPatient.acuteConditions.map(c => c.name).join(', ')}
               </div>
               <p className="text-xs text-neutral-600 mt-2">
-                Diagnosed 2021. Peak expiratory flow rate documented at Apollo Pulmonology Clinic.
+                {currentPatient.acuteConditions[0]?.notes}
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
@@ -243,39 +258,39 @@ export const Screen6PatientProfile: React.FC = () => {
                 Doctor Attested
               </span>
               <button
-                onClick={() => setSelectedEvidenceItem('Asthma Pulmonary History')}
-                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline underline-offset-4"
+                onClick={() => setSelectedEvidenceItem('Conditions')}
+                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline"
               >
                 Inspect Proof →
               </button>
             </div>
           </div>
 
-          {/* Previous Procedures */}
-          <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
+          {/* Shielded Past History Card */}
+          <div className="bg-emerald-50/70 rounded-xl border border-emerald-300 p-5 shadow-xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase">
-                  Previous Procedures
+                <span className="font-mono text-[10px] text-emerald-800 font-bold uppercase">
+                  Insurance Shield
                 </span>
-                <VerificationBadge level="Medium" text="Trust: MEDIUM" />
+                <span className="text-[10px] font-mono bg-emerald-600 text-white font-bold px-2 py-0.5 rounded">
+                  HIDDEN
+                </span>
               </div>
-              <div className="text-base font-bold text-neutral-900">
-                Appendectomy (Laparoscopic)
+              <div className="text-lg font-bold text-emerald-950 flex items-center gap-1.5">
+                <EyeOff className="w-5 h-5 text-emerald-700" />
+                <span>{currentPatient.shieldedRecordsCount} Routine Past Records</span>
               </div>
               <p className="text-xs text-neutral-600 mt-2">
-                Performed June 2022. No surgical complications noted. Surgical scar present on lower right quadrant.
+                Minor past consultations, dental work, and non-emergency doctor visits are <strong>never</strong> exposed to insurance auditors.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
-              <span className="text-[11px] font-mono text-neutral-500">
-                OP Summary Log
-              </span>
+            <div className="mt-4 pt-3 border-t border-emerald-200 flex items-center justify-between">
               <button
-                onClick={() => setSelectedEvidenceItem('Appendectomy Surgical Note')}
-                className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline underline-offset-4"
+                onClick={() => setIsInsuranceModalOpen(true)}
+                className="text-xs font-bold text-emerald-800 hover:underline"
               >
-                Inspect Proof →
+                Verify Insurance Safety →
               </button>
             </div>
           </div>
@@ -285,25 +300,25 @@ export const Screen6PatientProfile: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase">
-                  Emergency Guardian
+                  Next of Kin Contact
                 </span>
                 <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
-                  Masked Proxy
+                  Protected Proxy
                 </span>
               </div>
               <div className="text-lg font-bold text-neutral-900">
-                Priya Mehta (Mother)
+                {currentPatient.emergencyContact.name} ({currentPatient.emergencyContact.relationship})
               </div>
               <p className="text-xs text-neutral-600 mt-2 font-mono">
-                +91 &bull;&bull;&bull;&bull;&bull;&bull; 4821
+                {currentPatient.emergencyContact.maskedPhone}
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-neutral-200 flex items-center justify-between">
               <button
                 onClick={() => setCurrentScreen('emergency-contact')}
-                className="text-xs font-bold text-neutral-950 hover:text-amber-600 underline underline-offset-4"
+                className="text-xs font-bold text-neutral-950 hover:text-amber-600 underline"
               >
-                Open Private Call Console →
+                Launch Private Call Console →
               </button>
             </div>
           </div>

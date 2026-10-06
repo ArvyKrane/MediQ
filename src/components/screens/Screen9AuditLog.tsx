@@ -15,7 +15,7 @@ import {
 import { useMediq } from '../../context/MediqContext';
 
 export const Screen9AuditLog: React.FC = () => {
-  const { auditLogs, setCurrentScreen } = useMediq();
+  const { auditLogs, setCurrentScreen, currentPatient } = useMediq();
   const [filterQuery, setFilterQuery] = useState('');
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
@@ -41,21 +41,21 @@ export const Screen9AuditLog: React.FC = () => {
               Screen 09 &bull; Forensic Compliance
             </span>
             <span className="text-[11px] font-mono text-neutral-400">
-              SHA-256 Merkle Ledger
+              Tamper-Proof Audit Trail
             </span>
           </div>
           <h2 className="text-2xl font-black text-neutral-950 tracking-tight mt-1">
-            AUDIT TRAIL &amp; IMMUTABLE EVENT LEDGER
+            IMMUTABLE ACTIVITY &amp; AUDIT LOG
           </h2>
           <p className="text-xs text-neutral-500 mt-0.5">
-            "Every access generates an auditable event." Tamper-proof, cryptographically signed record of all triage interactions.
+            "Every access generates an auditable event." Any hospital or responder accessing patient records is permanently logged for accountability.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-mono font-bold">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Chain Integrity: VALID (0 Violations)</span>
+            <span>Audit State: UNTAMPERED</span>
           </div>
         </div>
       </div>
@@ -63,20 +63,20 @@ export const Screen9AuditLog: React.FC = () => {
       {/* Forensic Overview Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 font-mono text-xs">
         <div className="bg-white p-3.5 rounded-xl border border-neutral-200/90 shadow-xs">
-          <span className="text-neutral-400 block text-[10px] uppercase font-bold">TOTAL LOGGED EVENTS</span>
+          <span className="text-neutral-400 block text-[10px] uppercase font-bold">LOGGED EVENTS</span>
           <span className="text-xl font-black text-neutral-950 mt-0.5 block">{auditLogs.length} Events</span>
         </div>
         <div className="bg-white p-3.5 rounded-xl border border-neutral-200/90 shadow-xs">
-          <span className="text-neutral-400 block text-[10px] uppercase font-bold">LATEST BLOCK HASH</span>
-          <span className="text-xs font-bold text-neutral-800 mt-1 block truncate">0x94f28c...01e9</span>
+          <span className="text-neutral-400 block text-[10px] uppercase font-bold">ACTIVE PATIENT ABHA</span>
+          <span className="text-xs font-bold text-neutral-800 mt-1 block truncate">{currentPatient.abhaId}</span>
         </div>
         <div className="bg-white p-3.5 rounded-xl border border-neutral-200/90 shadow-xs">
-          <span className="text-neutral-400 block text-[10px] uppercase font-bold">SIGNATURE ALGORITHM</span>
-          <span className="text-xs font-bold text-neutral-800 mt-1 block">ECDSA P-256 (NIST)</span>
+          <span className="text-neutral-400 block text-[10px] uppercase font-bold">COMMERCIAL INSURERS</span>
+          <span className="text-xs font-bold text-red-600 mt-1 block">0 QUERIES ALLOWED</span>
         </div>
         <div className="bg-neutral-950 text-white p-3.5 rounded-xl border border-neutral-800 shadow-xs">
-          <span className="text-neutral-400 block text-[10px] uppercase font-bold">COMPLIANCE STATE</span>
-          <span className="text-xs font-bold text-[#FFB800] mt-1 block">DISHA / HIPAA READY</span>
+          <span className="text-neutral-400 block text-[10px] uppercase font-bold">LEGAL COMPLIANCE</span>
+          <span className="text-xs font-bold text-[#FFB800] mt-1 block">DPDP ACT / ABDM READY</span>
         </div>
       </div>
 
@@ -86,23 +86,21 @@ export const Screen9AuditLog: React.FC = () => {
           <div className="flex items-center gap-2">
             <FileCheck className="w-4 h-4 text-neutral-700" />
             <h3 className="font-bold text-sm text-neutral-950">
-              Chronological Audit Trail (Patient: MED-0192)
+              Activity History for {currentPatient.name}
             </h3>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <input
-                type="text"
-                value={filterQuery}
-                onChange={(e) => setFilterQuery(e.target.value)}
-                placeholder="Filter by actor or action..."
-                className="text-xs px-3 py-1.5 rounded-lg border border-neutral-200 focus:outline-none focus:border-[#FFB800] w-56 font-mono"
-              />
-            </div>
+            <input
+              type="text"
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              placeholder="Search activity..."
+              className="text-xs px-3 py-1.5 rounded-lg border border-neutral-200 focus:outline-none focus:border-[#FFB800] w-56 font-mono"
+            />
             <button
               type="button"
-              onClick={() => alert('Exporting signed audit certificate... (Mock PDF/JSON)')}
+              onClick={() => alert('Exporting signed legal audit transcript...')}
               className="px-3 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
@@ -170,7 +168,7 @@ export const Screen9AuditLog: React.FC = () => {
 
                         <div className="bg-[#F8F9FA] p-2 rounded-lg border border-neutral-200/60">
                           <span className="text-[10px] font-mono text-neutral-400 block uppercase font-bold">
-                            LEGAL / CLINICAL REASON
+                            REASON
                           </span>
                           <span className="text-neutral-800 text-[11px]">
                             {log.reason}
@@ -191,7 +189,7 @@ export const Screen9AuditLog: React.FC = () => {
                       <span>{copiedHash === log.hash ? 'COPIED!' : log.hash}</span>
                     </button>
                     <span className="text-[10px] font-mono text-emerald-600 block mt-0.5">
-                      Merkle Seal ✓
+                      Immutable ✓
                     </span>
                   </div>
                 </div>
@@ -201,17 +199,17 @@ export const Screen9AuditLog: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom CTA to Offline Mode */}
+      {/* Bottom CTA */}
       <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
-        <span className="text-xs text-neutral-500 font-mono">
-          Next: Test offline emergency resilience without internet connectivity
+        <span className="text-xs text-neutral-500">
+          Next: Test offline emergency triage when cellular internet is unavailable
         </span>
         <button
           type="button"
           onClick={() => setCurrentScreen('offline-mode')}
           className="py-2.5 px-5 rounded-xl bg-neutral-950 hover:bg-black text-[#FFB800] text-xs font-bold flex items-center gap-2 shadow-xs transition-all"
         >
-          <span>PROCEED TO OFFLINE EMERGENCY MODE</span>
+          <span>TEST OFFLINE AMBULANCE MODE</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

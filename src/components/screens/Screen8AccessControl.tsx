@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Shield,
+  ShieldCheck,
   Lock,
   Unlock,
   AlertTriangle,
@@ -11,75 +12,76 @@ import {
   Key,
   Flame,
   ArrowRight,
+  EyeOff,
+  XCircle,
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
 import { AccessBadge } from '../common/VerificationBadge';
-import type { PermissionItem, UserRole } from '../../types/mediq';
+import type { PermissionItem } from '../../types/mediq';
 
 const PERMISSION_MATRIX: PermissionItem[] = [
   {
-    category: 'Emergency Snapshot (Vitals, Basic ID)',
+    category: 'Emergency Snapshot (Vitals, Basic ID, ABHA)',
     firstResponder: 'allowed',
     ambulanceEms: 'allowed',
     doctor: 'allowed',
     hospital: 'allowed',
     admin: 'restricted',
+    insuranceTpa: 'restricted',
   },
   {
-    category: 'Critical Allergies & Contraindications',
+    category: 'Critical Allergies (e.g. Penicillin Anaphylaxis)',
     firstResponder: 'allowed',
     ambulanceEms: 'allowed',
     doctor: 'allowed',
     hospital: 'allowed',
     admin: 'restricted',
+    insuranceTpa: 'restricted',
   },
   {
-    category: 'Conflicting Blood Group & Lab Serology',
+    category: 'Conflicting Blood Group & Bedside Lab Test',
     firstResponder: 'restricted',
     ambulanceEms: 'allowed',
     doctor: 'allowed',
     hospital: 'allowed',
     admin: 'restricted',
+    insuranceTpa: 'restricted',
   },
   {
-    category: 'Full Verified Medical History',
+    category: 'Emergency Next-of-Kin Contact (Masked Proxy)',
+    firstResponder: 'allowed',
+    ambulanceEms: 'allowed',
+    doctor: 'allowed',
+    hospital: 'allowed',
+    admin: 'restricted',
+    insuranceTpa: 'restricted',
+  },
+  {
+    category: 'Full Verified Medical History (ER Scope)',
     firstResponder: 'restricted',
     ambulanceEms: 'break-glass',
     doctor: 'allowed',
     hospital: 'allowed',
     admin: 'restricted',
+    insuranceTpa: 'restricted',
   },
   {
-    category: 'Private Emergency Contact (Unmasked)',
-    firstResponder: 'restricted',
-    ambulanceEms: 'break-glass',
-    doctor: 'break-glass',
-    hospital: 'break-glass',
-    admin: 'restricted',
-  },
-  {
-    category: 'Zero-Knowledge Audio Proxy Bridge',
-    firstResponder: 'allowed',
-    ambulanceEms: 'allowed',
-    doctor: 'allowed',
-    hospital: 'allowed',
-    admin: 'restricted',
-  },
-  {
-    category: 'Patient Registration & Insurance Details',
+    category: 'Non-Emergency Past Records (Dental, Minor Fever, OPD)',
     firstResponder: 'restricted',
     ambulanceEms: 'restricted',
-    doctor: 'break-glass',
-    hospital: 'allowed',
-    admin: 'allowed',
+    doctor: 'restricted',
+    hospital: 'restricted',
+    admin: 'restricted',
+    insuranceTpa: 'restricted',
   },
   {
-    category: 'Cryptographic Audit Trails & Compliance',
+    category: 'Insurance Policy & Inpatient Billing Details',
     firstResponder: 'restricted',
     ambulanceEms: 'restricted',
     doctor: 'restricted',
     hospital: 'allowed',
     admin: 'allowed',
+    insuranceTpa: 'restricted',
   },
 ];
 
@@ -88,12 +90,10 @@ export const Screen8AccessControl: React.FC = () => {
     setIsBreakGlassModalOpen,
     hasBreakGlassActive,
     breakGlassReason,
-    userRole,
-    setUserRole,
     setCurrentScreen,
+    setIsInsuranceModalOpen,
+    currentPatient,
   } = useMediq();
-
-  const [activeFilterRole, setActiveFilterRole] = useState<UserRole | 'all'>('all');
 
   return (
     <div className="space-y-6 pb-24 animate-in fade-in duration-300">
@@ -102,17 +102,17 @@ export const Screen8AccessControl: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs uppercase tracking-wider text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-              Screen 08 &bull; Zero-Trust Authorization
+              Screen 08 &bull; Privacy &amp; Access Controls
             </span>
-            <span className="text-[11px] font-mono text-neutral-400">
-              Attribute-Based Access Control (ABAC)
+            <span className="text-[11px] font-mono text-emerald-700 font-bold">
+              Insurance Firewall Active
             </span>
           </div>
           <h2 className="text-2xl font-black text-neutral-950 tracking-tight mt-1">
-            WHO IS ALLOWED TO SEE IT?
+            WHO IS ALLOWED TO SEE WHAT?
           </h2>
           <p className="text-xs text-neutral-500 mt-0.5">
-            Granular data isolation based on responder clinical scope, patient state, and operational urgency.
+            Strict role-based isolation guaranteeing that emergency responders get what they need to save lives, while commercial insurance crawlers are 100% blocked.
           </p>
         </div>
 
@@ -148,7 +148,40 @@ export const Screen8AccessControl: React.FC = () => {
         </div>
       )}
 
-      {/* 5 Distinct Roles Cards */}
+      {/* Insurance Protection Banner */}
+      <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2.5 bg-emerald-100 rounded-xl text-emerald-800 shrink-0 mt-0.5">
+            <ShieldCheck className="w-6 h-6 text-emerald-600" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs font-bold uppercase text-emerald-900 bg-emerald-200/80 px-2 py-0.5 rounded">
+                PATIENT INSURANCE POLICY SAFEGUARD
+              </span>
+              <span className="text-xs text-emerald-800 font-semibold font-mono">
+                {currentPatient.shieldedRecordsCount} Records Shielded
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-neutral-950 mt-1">
+              Commercial Insurers Cannot Nullify Policies Using ABHA Emergency Data
+            </h3>
+            <p className="text-xs text-neutral-700 mt-1 leading-relaxed max-w-3xl">
+              In India, patients often fear insurance companies will find undisclosed past history via ABHA and cancel coverage. MEDIQ's Emergency Care token restricts data access strictly to immediate life-support vitals. Non-emergency consultations remain sealed.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsInsuranceModalOpen(true)}
+          className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shrink-0 transition-colors shadow-xs"
+        >
+          View Insurance Firewall Proof →
+        </button>
+      </div>
+
+      {/* Role Scope Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         {/* First Responder */}
         <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-xs">
@@ -156,15 +189,9 @@ export const Screen8AccessControl: React.FC = () => {
             <UserCheck className="w-4 h-4 text-amber-600" />
             <span>FIRST RESPONDER</span>
           </div>
-          <div className="text-[11px] font-mono text-neutral-500 uppercase font-semibold">
-            Access Scope
-          </div>
-          <div className="text-xs font-bold text-neutral-900 mt-0.5">
-            Emergency Snapshot
-          </div>
-          <p className="text-[11px] text-neutral-500 mt-2">
-            Vitals, severe allergies, proxy contact token.
-          </p>
+          <div className="text-[11px] font-mono text-neutral-500 uppercase font-semibold">Access Scope</div>
+          <div className="text-xs font-bold text-neutral-900 mt-0.5">Emergency Snapshot</div>
+          <p className="text-[11px] text-neutral-500 mt-2">Vitals, severe allergies, proxy contact token.</p>
         </div>
 
         {/* Ambulance / EMS */}
@@ -173,66 +200,42 @@ export const Screen8AccessControl: React.FC = () => {
             <Ambulance className="w-4 h-4 text-amber-600" />
             <span>AMBULANCE / EMS</span>
           </div>
-          <div className="text-[11px] font-mono text-neutral-500 uppercase font-semibold">
-            Access Scope
-          </div>
-          <div className="text-xs font-bold text-neutral-900 mt-0.5">
-            Critical Medical Info
-          </div>
-          <p className="text-[11px] text-neutral-500 mt-2">
-            Field stabilization, anaphylaxis flags, conflict alerts.
-          </p>
+          <div className="text-[11px] font-mono text-neutral-500 uppercase font-semibold">Access Scope</div>
+          <div className="text-xs font-bold text-neutral-900 mt-0.5">Field Stabilization</div>
+          <p className="text-[11px] text-neutral-500 mt-2">Active meds, conflict warnings, airway alerts.</p>
         </div>
 
         {/* Doctor */}
         <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-xs">
           <div className="flex items-center gap-2 text-neutral-900 font-bold text-xs mb-1">
             <Stethoscope className="w-4 h-4 text-amber-600" />
-            <span>DOCTOR</span>
+            <span>ER DOCTOR</span>
           </div>
-          <div className="text-[11px] font-mono text-neutral-500 uppercase font-semibold">
-            Access Scope
-          </div>
-          <div className="text-xs font-bold text-neutral-900 mt-0.5">
-            Verified Medical History
-          </div>
-          <p className="text-[11px] text-neutral-500 mt-2">
-            Multi-source records, conflict resolution, lab history.
-          </p>
+          <div className="text-[11px] font-mono text-neutral-500 uppercase font-semibold">Access Scope</div>
+          <div className="text-xs font-bold text-neutral-900 mt-0.5">Verified Medical History</div>
+          <p className="text-[11px] text-neutral-500 mt-2">Multi-hospital records, lab history, bedside tests.</p>
         </div>
 
-        {/* Hospital */}
+        {/* Hospital Admin */}
         <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-xs">
           <div className="flex items-center gap-2 text-neutral-900 font-bold text-xs mb-1">
             <Building className="w-4 h-4 text-amber-600" />
-            <span>HOSPITAL</span>
+            <span>HOSPITAL ADMIN</span>
           </div>
-          <div className="text-[11px] font-mono text-neutral-400 uppercase font-semibold">
-            Access Scope
-          </div>
-          <div className="text-xs font-bold text-neutral-900 mt-0.5">
-            Registration + Clinical
-          </div>
-          <p className="text-[11px] text-neutral-500 mt-2">
-            Inpatient admission, beds, insurance, and records.
-          </p>
+          <div className="text-[11px] font-mono text-neutral-400 uppercase font-semibold">Access Scope</div>
+          <div className="text-xs font-bold text-neutral-900 mt-0.5">Registration &amp; Beds</div>
+          <p className="text-[11px] text-neutral-500 mt-2">Inpatient intake, insurance claims, billing.</p>
         </div>
 
-        {/* Admin */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-xs">
-          <div className="flex items-center gap-2 text-neutral-900 font-bold text-xs mb-1">
-            <Shield className="w-4 h-4 text-amber-600" />
-            <span>ADMIN</span>
+        {/* Insurance TPA - Strictly Blocked */}
+        <div className="bg-red-50/50 rounded-xl border-2 border-red-300 p-4 shadow-xs">
+          <div className="flex items-center gap-2 text-red-900 font-bold text-xs mb-1">
+            <EyeOff className="w-4 h-4 text-red-600" />
+            <span>INSURANCE TPAs</span>
           </div>
-          <div className="text-[11px] font-mono text-neutral-400 uppercase font-semibold">
-            Access Scope
-          </div>
-          <div className="text-xs font-bold text-neutral-900 mt-0.5">
-            Audit + Governance
-          </div>
-          <p className="text-[11px] text-neutral-500 mt-2">
-            Tamper verification, compliance, key rotation.
-          </p>
+          <div className="text-[11px] font-mono text-red-700 uppercase font-bold">Access Scope</div>
+          <div className="text-xs font-bold text-red-700 mt-0.5">🚫 ZERO ACCESS</div>
+          <p className="text-[11px] text-neutral-600 mt-2">Legally and technically blocked from emergency records.</p>
         </div>
       </div>
 
@@ -241,24 +244,24 @@ export const Screen8AccessControl: React.FC = () => {
         <div className="p-4 sm:p-5 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="font-bold text-sm text-neutral-950">
-              Granular Role-Based Permission Matrix
+              Role-Based Emergency Access Matrix
             </h3>
             <p className="text-xs text-neutral-500 mt-0.5">
-              Strict enforcement: ✓ Allowed &bull; 🔒 Restricted &bull; ⚠ Break-glass access only
+              Notice the dedicated <strong>Insurance TPA</strong> column: strictly restricted across all emergency clinical tokens.
             </p>
           </div>
 
           <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="flex items-center gap-1 text-emerald-700">
-              <span className="font-bold">✓</span> Allowed
+            <span className="flex items-center gap-1 text-emerald-700 font-bold">
+              <span>✓</span> Allowed
             </span>
             <span>&bull;</span>
-            <span className="flex items-center gap-1 text-neutral-500">
+            <span className="flex items-center gap-1 text-neutral-500 font-bold">
               <span>🔒</span> Restricted
             </span>
             <span>&bull;</span>
-            <span className="flex items-center gap-1 text-amber-700">
-              <span>⚠</span> Break-Glass
+            <span className="flex items-center gap-1 text-red-600 font-bold">
+              <span>🚫</span> Blocked
             </span>
           </div>
         </div>
@@ -267,12 +270,12 @@ export const Screen8AccessControl: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-[#F8F9FA] text-neutral-600 font-mono text-[11px] uppercase border-b border-neutral-200">
               <tr>
-                <th className="py-3 px-4 font-bold">Data Asset / Intelligence Slice</th>
+                <th className="py-3 px-4 font-bold">Data Asset</th>
                 <th className="py-3 px-3 text-center">First Responder</th>
-                <th className="py-3 px-3 text-center">Ambulance / EMS</th>
-                <th className="py-3 px-3 text-center">Doctor (ER)</th>
+                <th className="py-3 px-3 text-center">Ambulance EMS</th>
+                <th className="py-3 px-3 text-center">ER Doctor</th>
                 <th className="py-3 px-3 text-center">Hospital Admin</th>
-                <th className="py-3 px-3 text-center">System Auditor</th>
+                <th className="py-3 px-3 text-center text-red-700 bg-red-50">Insurance TPA</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -293,8 +296,10 @@ export const Screen8AccessControl: React.FC = () => {
                   <td className="py-3.5 px-3 text-center">
                     <AccessBadge status={row.hospital} />
                   </td>
-                  <td className="py-3.5 px-3 text-center">
-                    <AccessBadge status={row.admin} />
+                  <td className="py-3.5 px-3 text-center bg-red-50/40">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-100 text-red-800 border border-red-300">
+                      🚫 Blocked
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -303,23 +308,17 @@ export const Screen8AccessControl: React.FC = () => {
         </div>
       </div>
 
-      {/* Break-Glass Specification Callout */}
+      {/* Break-Glass Callout */}
       <div className="bg-[#F8F9FA] rounded-2xl border border-neutral-200/90 p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs uppercase font-bold text-red-600">
-              BREAK-GLASS EMERGENCY ACCESS PROTOCOL
-            </span>
-            <span className="text-[10px] font-mono bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-bold">
-              ISO/IEC 27799 Compliant
+              BREAK-GLASS EMERGENCY PROTOCOL
             </span>
           </div>
           <p className="text-xs text-neutral-700 max-w-3xl leading-relaxed">
             "Emergency access may temporarily expose critical information when normal connectivity or authorization paths are unavailable."
           </p>
-          <div className="text-[11px] text-neutral-500 font-mono">
-            Mandatory credentials required: Clinical justification &bull; Cryptographic responder signature &bull; Maximum 60-minute duration.
-          </div>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
@@ -337,7 +336,7 @@ export const Screen8AccessControl: React.FC = () => {
             onClick={() => setCurrentScreen('audit-log')}
             className="py-2.5 px-4 rounded-xl bg-neutral-950 hover:bg-black text-[#FFB800] text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
           >
-            <span>VIEW AUDIT TRAIL</span>
+            <span>VIEW AUDIT LOG</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

@@ -13,13 +13,13 @@ import {
   ArrowRight,
   HelpCircle,
   Stethoscope,
+  RefreshCw,
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
-import { TrustScore } from '../common/TrustScore';
-import { ConflictAlert } from '../common/ConflictAlert';
 
 export const Screen4ClinicalTrust: React.FC = () => {
   const {
+    currentPatient,
     clinicalTrustScore,
     clinicalTrustBreakdown,
     recordSources,
@@ -30,6 +30,9 @@ export const Screen4ClinicalTrust: React.FC = () => {
     resolveConflict,
     setCurrentScreen,
     setSelectedEvidenceItem,
+    isAbdmFetching,
+    abdmFetchStatus,
+    fetchAbdmRecords,
   } = useMediq();
 
   const [showDirectVerifyModal, setShowDirectVerifyModal] = useState(false);
@@ -42,252 +45,248 @@ export const Screen4ClinicalTrust: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs uppercase tracking-wider text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-              Screen 04 &bull; Clinical Trust Engine
+              Screen 04 &bull; Medical Records Verification
             </span>
-            <span className="text-[11px] font-mono text-neutral-400">
-              Deterministic Conflict Gate
+            <span className="text-[11px] font-mono text-neutral-500">
+              ABHA Live Records
             </span>
           </div>
           <h2 className="text-2xl font-black text-neutral-950 tracking-tight mt-1">
-            VERIFY MEDICAL HISTORY
+            VERIFY MEDICAL RECORDS &amp; CONFLICTS
           </h2>
-          <p className="text-xs text-neutral-500 mt-0.5 font-mono">
-            Patient: <strong className="text-neutral-950 font-sans">Aarav Mehta</strong> (MED-0192) &bull; Age: 21 &bull; Identity Confirmed
+          <p className="text-xs text-neutral-500 mt-0.5">
+            Patient: <strong className="text-neutral-950">{currentPatient.name}</strong> &bull; ABHA: <strong className="text-emerald-800 font-mono">{currentPatient.abhaId}</strong>
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setSelectedEvidenceItem('Blood Group (B+ vs O+)')}
+            type="button"
+            onClick={() => fetchAbdmRecords(currentPatient.abhaId)}
+            disabled={isAbdmFetching}
             className="px-3 py-1.5 rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 text-xs font-semibold text-neutral-800 flex items-center gap-1.5 shadow-2xs"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-neutral-500" />
-            <span>Why can I trust this?</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${isAbdmFetching ? 'animate-spin text-amber-500' : 'text-neutral-500'}`} />
+            <span>{isAbdmFetching ? 'Fetching ABDM...' : 'Re-sync Hospital Records'}</span>
           </button>
         </div>
       </div>
 
       {/* Prominent Clinical Conflict Warning Card */}
-      <ConflictAlert
-        onVerifyClick={() => setShowDirectVerifyModal(true)}
-      />
-
-      {/* Main Clinical Trust Score Display */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Side: Score & 6 Sub-metrics (7 cols) */}
-        <div className="lg:col-span-7">
-          <TrustScore
-            score={clinicalTrustScore}
-            breakdown={clinicalTrustBreakdown}
-            onOpenEvidence={() => setSelectedEvidenceItem('Clinical Provenance Vector')}
-          />
-        </div>
-
-        {/* Right Side: Quick Action & Guidance Panel (5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white rounded-2xl border border-neutral-200/90 p-5 shadow-xs">
-            <h3 className="font-bold text-sm text-neutral-950 flex items-center gap-2 pb-3 border-b border-neutral-100">
-              <ShieldAlert className="w-4 h-4 text-red-600" />
-              <span>CLINICAL GOVERNANCE RULE</span>
-            </h3>
-
-            <div className="space-y-3 mt-3 text-xs">
-              <div className="bg-neutral-50 p-3 rounded-xl border border-neutral-200/80">
-                <span className="font-mono text-[10px] text-neutral-400 uppercase font-bold block">
-                  ZERO-MERGE INVARIANT
-                </span>
-                <p className="text-neutral-700 mt-1 leading-relaxed">
-                  Unlike traditional EHRs that overwrite data or guess the most recent value, MEDIQ isolates conflicting records into an unmerged state.
-                </p>
+      {currentPatient.hasBloodGroupConflict && (
+        <div
+          className={`bg-white border-2 ${
+            isConflictResolved
+              ? 'border-emerald-400 bg-emerald-50/20'
+              : 'border-red-400 bg-red-50/15'
+          } rounded-2xl p-5 shadow-sm transition-all relative overflow-hidden`}
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div
+                className={`p-2.5 rounded-xl shrink-0 mt-0.5 ${
+                  isConflictResolved ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-600'
+                }`}
+              >
+                {isConflictResolved ? (
+                  <CheckCircle2 className="w-6 h-6 text-emerald-700" />
+                ) : (
+                  <AlertTriangle className="w-6 h-6 animate-pulse" />
+                )}
               </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`font-mono text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+                      isConflictResolved
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-red-100 text-red-700'
+                    }`}
+                  >
+                    {isConflictResolved
+                      ? '✓ BLOOD GROUP CONFLICT RESOLVED AT BEDSIDE'
+                      : '⚠️ FATAL CONFLICT: BLOOD GROUP DISPUTE'}
+                  </span>
+                  {isConflictLocked && !isConflictResolved && (
+                    <span className="font-mono text-xs bg-red-600 text-white px-2 py-0.5 rounded font-bold">
+                      FIELD LOCKED
+                    </span>
+                  )}
+                </div>
 
-              <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200 text-amber-950">
-                <span className="font-mono text-[10px] text-amber-800 uppercase font-bold block">
-                  FATAL CONFLICT SAFEGUARD
-                </span>
-                <p className="mt-1 leading-relaxed text-[11px]">
-                  Blood group mismatch (B+ vs O+) carries fatal acute hemolytic transfusion reaction risk. The field remains locked until certified bedside testing or dual-doctor override.
+                <h3 className="text-base font-bold text-neutral-950 mt-1">
+                  {isConflictResolved ? (
+                    <span>
+                      Confirmed Blood Group: <strong className="text-emerald-700 font-mono text-lg">{resolvedBloodGroup}</strong>
+                    </span>
+                  ) : (
+                    <span>
+                      Apollo Hospital says <span className="text-red-700 font-mono font-bold">B+</span> vs Fortis Hospital says <span className="text-red-700 font-mono font-bold">O+</span>
+                    </span>
+                  )}
+                </h3>
+
+                <p className="text-xs text-neutral-700 mt-1 leading-relaxed max-w-2xl">
+                  {isConflictResolved ? (
+                    'Bedside test completed by Dr. Sharma. Blood bank notified; safe for transfusion.'
+                  ) : (
+                    <>
+                      <strong>"MEDIQ will NOT automatically merge conflicting critical data."</strong> Merging these blindly could cause a fatal acute transfusion reaction. The doctor must confirm physically.
+                    </>
+                  )}
                 </p>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-col gap-2">
-                {!isConflictResolved ? (
+                <div className="flex items-center gap-3 mt-2 text-xs font-mono">
+                  <span className="text-neutral-500">
+                    Clinical Record Reliability:{' '}
+                    <strong
+                      className={`text-sm ${
+                        isConflictResolved ? 'text-emerald-700 font-bold' : 'text-red-600 font-bold'
+                      }`}
+                    >
+                      {clinicalTrustScore}%
+                    </strong>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-row md:flex-col gap-2 shrink-0 justify-end">
+              {!isConflictResolved && (
+                <>
+                  {!isConflictLocked && (
+                    <button
+                      type="button"
+                      onClick={lockConflict}
+                      className="px-3.5 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs font-semibold border border-neutral-300"
+                    >
+                      Lock Dispute
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => setShowDirectVerifyModal(true)}
-                    className="w-full py-2.5 px-4 rounded-xl bg-neutral-950 hover:bg-black text-[#FFB800] text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                    className="px-4 py-2 rounded-xl bg-neutral-950 hover:bg-black text-[#FFB800] text-xs font-bold shadow-xs"
                   >
-                    <Stethoscope className="w-4 h-4" />
-                    <span>OVERRIDE &amp; ATTEST CLINICIAN VERIFICATION</span>
+                    Confirm Bedside Test →
                   </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setCurrentScreen('emergency-contact')}
-                    className="w-full py-2.5 px-4 rounded-xl bg-neutral-950 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
-                  >
-                    <span className="text-[#FFB800]">PROCEED TO EMERGENCY CONTACT</span>
-                    <ArrowRight className="w-4 h-4 text-[#FFB800]" />
-                  </button>
-                )}
-              </div>
+                </>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Medical Records From Different Sources Section */}
+      {/* Side-by-Side Hospital Records */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <span className="font-mono text-xs uppercase font-bold text-neutral-900 tracking-wider">
-              MULTIPLE SOURCE RECORDS (INDEPENDENT HEALTH NODES)
-            </span>
+            <h3 className="font-mono text-xs uppercase font-bold text-neutral-900 tracking-wider">
+              RAW MEDICAL RECORDS PULLED FROM LINKED HOSPITALS ({recordSources.length})
+            </h3>
             <p className="text-xs text-neutral-500 mt-0.5">
-              Comparison across 3 distinct accredited medical establishments.
+              Notice how independent hospital databases have conflicting entries.
             </p>
           </div>
-          <span className="font-mono text-xs text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded">
-            Cryptographically Anchored
-          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Source 1: Hospital A (Apollo) */}
-          <div className="bg-white rounded-xl border-2 border-neutral-900 p-4 shadow-xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-[10px] font-mono text-neutral-400 font-bold uppercase">
-                  Hospital A
-                </span>
-                <h4 className="font-bold text-sm text-neutral-950">Apollo Speciality</h4>
+          {recordSources.map((src, index) => {
+            const isConflictingSource = src.bloodGroup === 'O+';
+            return (
+              <div
+                key={src.id}
+                className={`bg-white rounded-2xl border-2 p-5 shadow-xs relative flex flex-col justify-between ${
+                  isConflictingSource ? 'border-red-400 bg-red-50/10' : 'border-neutral-200'
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono text-neutral-400 font-bold uppercase">
+                        Hospital #{index + 1}
+                      </span>
+                      <h4 className="font-bold text-sm text-neutral-950">{src.sourceName}</h4>
+                    </div>
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
+                        isConflictingSource
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      {isConflictingSource ? 'Disputed Record' : 'Verified Lab'}
+                    </span>
+                  </div>
+
+                  <div className="my-3 p-3 bg-neutral-50 rounded-xl border border-neutral-200">
+                    <span className="text-[10px] font-mono text-neutral-400 block uppercase">
+                      Logged Blood Group
+                    </span>
+                    <div
+                      className={`text-2xl font-black font-mono mt-0.5 ${
+                        isConflictingSource ? 'text-red-600' : 'text-neutral-950'
+                      }`}
+                    >
+                      {src.bloodGroup}
+                    </div>
+                    <span className="text-[10px] text-neutral-500">
+                      Recorded: {src.recordedDate}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1 text-xs text-neutral-600">
+                    <div>Attesting Doctor: {src.verifiedBy}</div>
+                    <div className="text-[11px] text-neutral-500 italic mt-2 bg-white p-2 rounded-lg border border-neutral-100">
+                      "{src.notes}"
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-neutral-400 truncate max-w-[150px]">
+                    {src.hash}
+                  </span>
+                  <button
+                    onClick={() => setSelectedEvidenceItem(src.sourceName)}
+                    className="text-xs font-semibold text-neutral-900 hover:text-amber-600 underline"
+                  >
+                    View Proof →
+                  </button>
+                </div>
               </div>
-              <span className="font-mono text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-1.5 py-0.5 rounded">
-                High Confidence
-              </span>
-            </div>
-
-            <div className="my-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-              <span className="text-[10px] font-mono text-neutral-400 block uppercase">
-                Recorded Blood Group
-              </span>
-              <div className="text-2xl font-black font-mono text-neutral-950 mt-0.5">
-                B+
-              </div>
-              <span className="text-[10px] font-mono text-emerald-700 font-semibold">
-                Verified Cross-Match (2025)
-              </span>
-            </div>
-
-            <div className="space-y-1 text-[11px] text-neutral-600 font-mono">
-              <div>Institution: Tier-1 Trauma</div>
-              <div>Attesting: Dr. R. Sengupta</div>
-              <div className="text-neutral-400 text-[10px] truncate">Hash: 8f7e2c90a1...b4e</div>
-            </div>
-
-            <button
-              onClick={() => setSelectedEvidenceItem('Apollo Speciality (B+)')}
-              className="mt-3 w-full py-1.5 text-xs text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg font-semibold transition-colors"
-            >
-              Inspect Proof &bull; SHA-256
-            </button>
-          </div>
-
-          {/* Source 2: Hospital B (Fortis) — CONFLICTING */}
-          <div className="bg-white rounded-xl border-2 border-red-400 p-4 shadow-xs relative bg-red-50/10">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-[10px] font-mono text-red-600 font-bold uppercase">
-                  Hospital B &bull; CONFLICT
-                </span>
-                <h4 className="font-bold text-sm text-neutral-950">Fortis Memorial</h4>
-              </div>
-              <span className="font-mono text-[10px] bg-red-100 text-red-800 border border-red-300 font-bold px-1.5 py-0.5 rounded">
-                High Confidence
-              </span>
-            </div>
-
-            <div className="my-3 p-3 bg-red-50 rounded-lg border border-red-200">
-              <span className="text-[10px] font-mono text-red-600 block uppercase">
-                Recorded Blood Group
-              </span>
-              <div className="text-2xl font-black font-mono text-red-600 mt-0.5">
-                O+
-              </div>
-              <span className="text-[10px] font-mono text-red-700 font-semibold">
-                Transcribed Intake Record (2023)
-              </span>
-            </div>
-
-            <div className="space-y-1 text-[11px] text-neutral-600 font-mono">
-              <div>Institution: Regional Trauma</div>
-              <div>Attesting: Dr. K. Verma</div>
-              <div className="text-neutral-400 text-[10px] truncate">Hash: 1a4b88d3e9...07c</div>
-            </div>
-
-            <button
-              onClick={() => setSelectedEvidenceItem('Fortis Memorial (O+)')}
-              className="mt-3 w-full py-1.5 text-xs text-red-700 bg-red-100 hover:bg-red-200 rounded-lg font-semibold transition-colors"
-            >
-              Inspect Conflict &bull; SHA-256
-            </button>
-          </div>
-
-          {/* Source 3: Diagnostic Center */}
-          <div className="bg-white rounded-xl border border-neutral-200 p-4 shadow-xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-[10px] font-mono text-neutral-400 font-bold uppercase">
-                  Diagnostic Center
-                </span>
-                <h4 className="font-bold text-sm text-neutral-950">Apex Diagnostic Lab</h4>
-              </div>
-              <span className="font-mono text-[10px] bg-amber-100 text-amber-800 border border-amber-300 font-bold px-1.5 py-0.5 rounded">
-                Medium Confidence
-              </span>
-            </div>
-
-            <div className="my-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-              <span className="text-[10px] font-mono text-neutral-400 block uppercase">
-                Recorded Blood Group
-              </span>
-              <div className="text-2xl font-black font-mono text-neutral-950 mt-0.5">
-                B+
-              </div>
-              <span className="text-[10px] font-mono text-neutral-600 font-semibold">
-                NABL Serology Panel (2025)
-              </span>
-            </div>
-
-            <div className="space-y-1 text-[11px] text-neutral-600 font-mono">
-              <div>Institution: Accredited Lab</div>
-              <div>Attesting: Dr. V. Nambiar</div>
-              <div className="text-neutral-400 text-[10px] truncate">Hash: 6e031b28fd...9fa</div>
-            </div>
-
-            <button
-              onClick={() => setSelectedEvidenceItem('Apex Diagnostic (B+)')}
-              className="mt-3 w-full py-1.5 text-xs text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg font-semibold transition-colors"
-            >
-              Inspect Lab &bull; SHA-256
-            </button>
-          </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Direct Clinician Verification Modal */}
+      {/* Next Step CTA */}
+      <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+        <span className="text-xs text-neutral-500">
+          Next: Contact patient's family privately without revealing phone number
+        </span>
+        <button
+          type="button"
+          onClick={() => setCurrentScreen('emergency-contact')}
+          className="py-3 px-6 rounded-xl bg-neutral-950 hover:bg-black text-[#FFB800] text-xs font-bold flex items-center gap-2 shadow-xs transition-all"
+        >
+          <span>PROCEED TO EMERGENCY CONTACT</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Bedside Clinician Confirmation Modal */}
       {showDirectVerifyModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 border border-neutral-200 shadow-2xl">
             <div className="flex items-center gap-2 text-neutral-900 mb-2">
               <Stethoscope className="w-5 h-5 text-amber-600" />
               <h3 className="text-lg font-bold">
-                Attending Clinician Blood Group Attestation
+                Doctor Bedside Blood Group Confirmation
               </h3>
             </div>
             <p className="text-xs text-neutral-600 mb-4">
-              Specify the verified blood group based on stat emergency bedside cross-match. This overrides disputed historical entries and updates Clinical Trust (C_clin) to 87%.
+              Select the blood group confirmed by physical finger-prick agglutination test in the ER. This unlocks blood bank release and sets clinical trust to 87%.
             </p>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
@@ -300,12 +299,12 @@ export const Screen4ClinicalTrust: React.FC = () => {
                     : 'border-neutral-200 bg-white'
                 }`}
               >
-                <span className="font-mono text-2xl font-black text-neutral-900">B+</span>
+                <span className="font-mono text-2xl font-black text-neutral-950">B+</span>
                 <span className="text-[11px] text-neutral-600 block mt-1">
-                  Supported by Apollo Hospital &amp; Apex Labs
+                  Supported by Apollo Hospital &amp; Apex Lab
                 </span>
                 <span className="text-[10px] font-mono text-emerald-700 font-bold">
-                  Recommended Match
+                  Recommended Test Match
                 </span>
               </button>
 
@@ -318,12 +317,12 @@ export const Screen4ClinicalTrust: React.FC = () => {
                     : 'border-neutral-200 bg-white'
                 }`}
               >
-                <span className="font-mono text-2xl font-black text-neutral-900">O+</span>
+                <span className="font-mono text-2xl font-black text-neutral-950">O+</span>
                 <span className="text-[11px] text-neutral-600 block mt-1">
-                  Fortis Memorial ER 2023 transcription
+                  Fortis Memorial 2023 transcription
                 </span>
                 <span className="text-[10px] font-mono text-amber-700 font-bold">
-                  Single Source
+                  Single Older Record
                 </span>
               </button>
             </div>
@@ -344,7 +343,7 @@ export const Screen4ClinicalTrust: React.FC = () => {
                 }}
                 className="px-4 py-2 text-xs font-bold bg-neutral-950 hover:bg-black text-[#FFB800] rounded-xl shadow-xs"
               >
-                CONFIRM {selectedBloodChoice} (Elevate C_clin → 87%)
+                ATTEST &amp; CONFIRM {selectedBloodChoice}
               </button>
             </div>
           </div>

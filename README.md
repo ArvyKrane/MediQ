@@ -1,141 +1,114 @@
 # MEDIQ: Emergency Medical Intelligence & Patient Identity Trust Platform
 
-> **"MEDIQ doesn't just identify the patient. It determines WHO the patient is, WHICH medical information can be trusted, and WHO is authorized to access it."**
+> **"MEDIQ connects unidentified, unconscious patients to their ABHA ID in seconds—retrieving life-saving medical records without jargon, resolving dangerous hospital conflicts, and strictly shielding past medical history from insurance companies."**
 
 ---
 
-## 1. Executive Summary
+## 1. Executive Summary & Core Idea
 
-When an unidentified or unconscious patient arrives at an emergency trauma bay, medical teams face an information crisis:
-1. **Identity Uncertainty:** Is the patient who we think they are?
-2. **Clinical Contradictions:** Medical records from different hospitals often contradict one another (e.g., conflicting blood types or unverified allergy lists). Traditional EHRs either blindly overwrite data or fail silently.
-3. **Privacy vs. Urgency:** First responders need instant access to life-saving vitals, but patients' private phone numbers, full demographic dossiers, and historical records must not be exposed carelessly.
+In medical emergencies, every second counts. When an unconscious patient arrives in an ambulance without family:
+1. **No Wallets or Phones:** Patients rarely carry emergency medical tags, and NFC cards are rarely available or accessible.
+2. **Conflicting Hospital Records:** Two hospitals frequently hold contradictory data (e.g., Hospital A says $B^+$, Hospital B says $O^+$). Blindly merging or guessing blood groups in an ER causes fatal transfusion shock.
+3. **The Insurance Privacy Fear:** Patients are often terrified of national health IDs like ABHA because they worry: *"If my hospital visits are connected, will my health insurance company find minor undisclosed past history (like past dental surgeries, childhood fevers, or minor counseling) and cancel my health insurance policy?"*
 
-**MEDIQ** is a zero-trust intelligence layer that connects unconscious patients, paramedics, ER physicians, and trauma hospitals through a 3-stage deterministic pipeline:
-
-$$\mathbf{IDENTIFY} \ (C_{id}) \longrightarrow \mathbf{VERIFY} \ (C_{clin}) \longrightarrow \mathbf{INTELLIGENTLY\ RETRIEVE} \ (\text{ACCESS})$$
+**MEDIQ** is a zero-friction, end-to-end emergency intelligence platform built on India's **ABHA / ABDM (Ayushman Bharat Digital Mission)** framework that solves all three problems.
 
 ---
 
-## 2. The 3 Core Mathematical Pillars
+## 2. Three Input Modes — No NFC Required
 
-### 1. $C_{id}$ — Identity Confidence ("Who is the patient?")
-- Multimodal biometric verification combining **facial landmark triangulation (68 vectors)**, **capacitive fingerprint minutiae matching**, and **OCR / National ID cross-referencing**.
-- Threshold gating: Only candidates with $C_{id} \ge 90\%$ can be bound to clinical records without mandatory manual supervisor signoff.
+MEDIQ replaces physical cards and NFC with **3 zero-friction input channels**:
 
-### 2. $C_{clin}$ — Clinical Trust Score ("Can we trust the medical record?")
-- Deterministic formula aggregating:
-  - **Source Reliability ($92\%$)** — Accredited trauma centers vs. self-reported apps.
-  - **Cross Validation ($89\%$)** — Multi-node consensus across independent hospitals.
-  - **Recency ($76\%$)** & **Temporal Validity ($88\%$)** — Decay models for lab reports.
-  - **Consistency ($91\%$)** & **Cryptographic Provenance ($94\%$)** — SHA-256 Merkle proofs.
-- **The Zero-Merge Invariant:** When records conflict on fatal fields (such as **$B^+$ vs $O^+$ blood group**), MEDIQ **refuses to automatically merge**. It locks the dispute, alerts the clinician, and mandates bedside attestation before unlocking transfusion orders.
+1. **Face Scan (Live Camera):** Uses the ambulance or mobile camera to match facial landmarks against national ABHA photo records in under 2 seconds.
+2. **Fingerprint Scan (Touch Sensor):** Uses a standard USB/Bluetooth biometric scanner to match UIDAI / ABDM minutiae.
+3. **Physical ID Card Scan (OCR / QR):** Uses the camera to scan physical **Aadhaar cards, Driving Licenses, Voter IDs, or physical ABHA QR cards** found in the patient's wallet.
 
-### 3. $\text{ACCESS}$ — Authorization & Context ("Who is allowed to see it?")
-- Attribute-Based Access Control (ABAC):
-  - **First Responder / Paramedic:** Emergency snapshot, allergies, audio proxy token.
-  - **Ambulance / EMS:** Field stabilization data, conflict warnings.
-  - **ER Doctor:** Full verified medical history, clinical attestation override.
-  - **Hospital Admin:** Inpatient beds, registration, insurance.
-  - **System Auditor:** Immutable forensic event logs.
-- **Break-Glass Emergency Protocol:** Allows time-limited privilege escalation during life-threatening events with mandatory clinical justification and immutable audit logging.
-- **Zero-Knowledge Telephony Proxy:** Paramedics can voice-call the patient’s next of kin (**Priya Mehta - Mother**) through an encrypted VoIP bridge without exposing private phone numbers (`+91 •••••• 4821`).
+All three inputs directly resolve to the patient's unique **ABHA Address** (e.g., `aarav.mehta@abdm`) and **ABHA Number** (`91-8291-3829-1920`).
 
 ---
 
-## 3. Demo Walkthrough (2–3 Minutes)
+## 3. The Insurance Privacy Shield (Solving the Past History Dilemma)
 
-The prototype includes a persistent **Demo Tour Bar** at the bottom of the screen with an **Auto-Play** mode and quick **Next / Previous** controls.
+### The Real-World Dilemma:
+> *"When people buy private health insurance in India, they often don't disclose minor past history. If everything is linked to ABHA, will the insurance company see this emergency data, claim non-disclosure of Pre-Existing Diseases (PED), and void the insurance policy?"*
+
+### The MEDIQ Solution:
+1. **Purpose-Bound Data Release (DPDP Act & ABDM Specification):**
+   - MEDIQ queries the ABDM Gateway strictly under **Purpose Code: `EMERGENCY_CARE`**.
+   - Under this legal token, the gateway releases **ONLY** the **Emergency Care Capsule**:
+     - Blood Group & Disputed Status
+     - Life-Threatening Drug Allergies (e.g. Penicillin Anaphylaxis)
+     - Active Resuscitation & Emergency Medications
+     - Next-of-Kin Emergency Contact (via Masked Voice Proxy)
+2. **Shielded Past Records (Never Pulled or Logged):**
+   - Minor historical consultations (past viral fevers, dental work, psychiatric consults, elective procedures) are **never fetched during an emergency**.
+   - For example, for patient Aarav Mehta, **14 routine past records are active in hospital archives but 100% hidden and shielded**.
+3. **Strict Insurance TPA Blockade:**
+   - Commercial insurance Third-Party Administrators (TPAs) and underwriting crawlers have **zero access** to MEDIQ emergency sessions.
+   - Any attempt by an insurance query robot to scrape emergency data is blocked at the gateway, making it **impossible for an insurer to use MEDIQ's emergency intake to cancel or contest a policy**.
+
+---
+
+## 4. Jargon-Free, Practical Emergency UI/UX
+
+MEDIQ is built for tired paramedics in rocky ambulances and junior nurses in busy trauma bays. We eliminated confusing crypto equations and replaced them with direct, human clinical language:
+
+| Technical / Jargon Concept | MEDIQ Plain-English Display |
+| :--- | :--- |
+| *C_id Deterministic Euclidean Vector* | **"94% Match: Aarav Mehta (ABHA: aarav.mehta@abdm)"** |
+| *Unmerged Ledger Provenance Conflict* | **"⚠️ Warning: Apollo says B+, Fortis says O+. Run bedside test before giving blood."** |
+| *Zero-Knowledge VoIP Ephemeral Session* | **"Call Mom (Priya Mehta) — Phone number stays private"** |
+| *ECDSA P-256 HSM Enclave Validation* | **"Ambulance Offline Mode: Verified genuine by hospital digital signature"** |
+
+---
+
+## 5. Live ABDM Data Pulling Architecture
+
+MEDIQ connects to the **ABDM Network Gateway** (M1, M2, M3 APIs):
+- **Health Information Providers (HIPs):** Pulls from connected hospital nodes:
+  - **Apollo Hospital (Delhi):** Surgery & Trauma Intake records
+  - **Fortis Memorial Research Institute:** Historical pediatric records
+  - **Apex Diagnostic & Pathology Center:** NABL serology blood tests
+- **Multi-Patient Simulator:** Test with 3 distinct real-world emergency profiles:
+  1. **Aarav Mehta** (`aarav.mehta@abdm`) — Unconscious trauma patient with a critical $B^+$ vs $O^+$ blood group dispute and Penicillin allergy.
+  2. **Priya Sharma** (`priya.sharma@abdm`) — Patient with a cardiac pacemaker and dual Penicillin + Latex allergies.
+  3. **Rajesh Kumar** (`rajesh.k@abdm`) — Diabetic patient with coronary stent and active insulin protocol.
+
+---
+
+## 6. The 10 Interactive Prototype Screens
 
 ```
-[01. Emergency Intake]  ──►  [02. Multimodal Scan]  ──►  [03. Identity Verified]
+[01. Emergency Intake]  ──►  [02. Face/ID Scan]     ──►  [03. ABHA Verified]
                                                                   │
-[06. Trusted Profile]   ◄──  [05. Private Contact]  ◄──  [04. Clinical Conflict]
+[06. Patient Profile]   ◄──  [05. Private Call]     ◄──  [04. Blood Conflict]
          │
          ▼
-[07. ER Dashboard]      ──►  [08. Access Matrix]    ──►  [09. Audit Trail]
+[07. ER Dashboard]      ──►  [08. Insurance Shield] ──►  [09. Activity Log]
                                                                   │
                                                                   ▼
-                                                         [10. Offline Bundle]
+                                                         [10. Offline Mode]
 ```
 
-### Step-by-Step Demo Script:
-
-1. **Screen 01 — Emergency Intake (`/emergency-landing`):**
-   - View the unconscious **UNKNOWN PATIENT** card with candidate ID `CAND-0192`.
-   - Observe the prominent red banner: **⚠ CLINICAL CONFLICT DETECTED** ($B^+$ vs $O^+$).
-   - Click **FACE SCAN** or **IDENTIFY PATIENT →**.
-
-2. **Screen 02 — Multimodal Patient Identification (`/patient-identification`):**
-   - Observe the live 1080p camera viewfinder with scanning laser and facial landmark mesh.
-   - See the 3 ranked candidates; Candidate #01 is **Aarav Mehta** at **$94.2\%$ Face Match**.
-   - Click **VERIFY IDENTITY** on Candidate #01.
-
-3. **Screen 03 — Identity Verification (`/identity-verification`):**
-   - Review the $C_{id}$ meter ($94.2\%$) and 4-source green verification checklist.
-   - Inspect the historical anchors timeline (Apollo Registration, UIDAI ID, Fortis ER).
-   - Click **CONFIRM IDENTITY (BIND PATIENT)** $\rightarrow$ State transitions to **IDENTITY VERIFIED ✓**.
-   - Click **VERIFY MEDICAL RECORD →**.
-
-4. **Screen 04 — Clinical Trust & Conflict Evaluation (`/clinical-trust`):**
-   - The Clinical Trust Score sits degraded at **$C_{clin} = 71\%$** due to conflicting records:
-     - **Hospital A (Apollo):** Blood Group $B^+$ (High Confidence).
-     - **Hospital B (Fortis):** Blood Group $O^+$ (High Confidence - Transcribed).
-     - **Diagnostic Center (Apex):** Blood Group $B^+$ (Medium Confidence).
-   - Click **LOCK CONFLICT** to freeze the disputed field.
-   - Click **REQUEST CLINICAL VERIFICATION** to open the doctor override modal. Select **$B^+$**, attest bedside cross-match, and watch **$C_{clin}$ elevate to $87\%$**.
-
-5. **Screen 05 — Private Emergency Contact (`/emergency-contact`):**
-   - Displays primary guardian **Priya Mehta (Mother)** with masked phone number `+91 •••••• 4821`.
-   - Click **CALL THROUGH MEDIQ** to launch the interactive encrypted VoIP proxy call simulation with real-time call timer and audio controls.
-
-6. **Screen 06 — Trusted Patient Profile (`/patient-profile`):**
-   - Complete dossier with 4 status pillars: Identity **VERIFIED**, $C_{id}: 94.2\%$, $C_{clin}: 87\%$, Access **AUTHORIZED**.
-   - Click **"Why can I trust this?"** or **"Inspect Proof"** on any card to open the **Cryptographic Evidence Drawer** displaying SHA-256 Merkle roots and hospital HSM signatures.
-
-7. **Screen 07 — Doctor / ER Dashboard (`/doctor-dashboard`):**
-   - Desktop command center for Trauma Bay #01.
-   - Highlights the **"INTELLIGENCE SUMMARY"** panel demonstrating the *Intelligently Retrieve* principle (actionable synthesis over data dumps).
-
-8. **Screen 08 — Access Control Matrix (`/access-control`):**
-   - Granular permission matrix across 5 roles with `✓ Allowed`, `🔒 Restricted`, and `⚠ Break-Glass`.
-   - Click **REQUEST BREAK-GLASS ACCESS** to test the emergency privilege override modal.
-
-9. **Screen 09 — Immutable Audit Trail (`/audit-log`):**
-   - Forensic event log showing all actions with timestamps (`23:41`, `23:38`, `23:34`, `23:32`), actors, reasons, and copyable SHA-256 hashes.
-
-10. **Screen 10 — Offline Emergency Mode (`/offline-mode`):**
-    - Demonstrates zero-connectivity triage with an ECDSA P-256 cryptographically signed local bundle.
-    - Click **VERIFY SIGNATURE** and **SYNC WHEN CONNECTED**.
+1. **Screen 01 — Emergency Intake:** Unconscious patient intake, 3 quick scan buttons (Face, Fingerprint, ID Card), blood group conflict alert, and Insurance Shield indicator.
+2. **Screen 02 — Biometric & ID Identification:** Live camera viewfinder, facial landmark tracker, and ranked ABHA candidates.
+3. **Screen 03 — Identity Verification:** Confirmed match against ABHA ID, proof checklist, and hospital registration history.
+4. **Screen 04 — Medical Records & Conflict Resolution:** Side-by-side hospital records, explanation of why MEDIQ refuses to blindly merge $B^+$ vs $O^+$, and 1-click bedside blood test confirmation.
+5. **Screen 05 — Private Emergency Contact:** Connect to mother Priya Mehta through a masked audio proxy without exposing private phone numbers.
+6. **Screen 06 — Verified Health Profile:** Life-saving facts, verified medication list, and the **Shielded History Inspector** proving past records are hidden from insurance.
+7. **Screen 07 — Doctor / ER Dashboard:** Full desktop trauma console with the rapid-action **Intelligence Summary**.
+8. **Screen 08 — Access & Insurance Control:** Granular permission matrix across roles showing the **Insurance TPA column strictly blocked 🚫**.
+9. **Screen 09 — Activity Audit Trail:** Immutable, plain-language log of every doctor and paramedic action.
+10. **Screen 10 — Offline Ambulance Mode:** Emergency care without internet; local signed capsule for rural highways and hospital basements.
 
 ---
 
-## 4. Design Language
-
-- **Aesthetic:** High-precision medical intelligence / emergency-tech (inspired by aerospace HUDs and iQOO technical minimalism).
-- **Background:** Crisp off-white (`#F6F7F9`) with subtle coordinate grids.
-- **Accents:** High-voltage amber/gold (`#FFB800`) for trust highlights and active states.
-- **Alerts:** Controlled surgical red used strictly for life-threatening clinical contradictions.
-- **Typography:** Plus Jakarta Sans for UI clarity + JetBrains Mono for telemetry, cryptographic hashes, and scores.
-
----
-
-## 5. Technology Stack
-
-- **Framework:** React 19 + TypeScript (Vite 8)
-- **Styling:** Tailwind CSS v4 + custom medical scanline animations & grid patterns
-- **Icons:** Lucide React
-- **State Engine:** Custom React Context architecture (`MediqContext`) with simulated biometric pipelines, conflict resolvers, and audit logging.
-
----
-
-## 6. How to Run Locally
+## 7. How to Run Locally
 
 ### Prerequisites
 - Node.js v18+ (tested on Node v24)
 - npm v9+
 
-### Quickstart
 ```bash
 # 1. Install dependencies
 npm install
@@ -144,122 +117,47 @@ npm install
 npm run dev
 ```
 
-Open **`http://localhost:5173/`** in your browser (optimized for Desktop 1440×900 and tablet viewports).
-
-### Production Build
-```bash
-npm run build
-npm run preview
-```
-All TypeScript types and bundling pass cleanly with zero compiler warnings.
+Open **`http://localhost:5173/`** in your browser.
 
 ---
 
-## 7. How to Deploy
+## 8. How to Deploy
 
-The prototype is a pure client-side SPA (React + Vite), making it compatible with any static hosting platform or edge CDN.
+The prototype is a pure client-side SPA (React + Vite), compatible with any static hosting platform or edge CDN.
 
-### Option A: Deploy to Vercel (Recommended — 1 Click / CLI)
-
-#### Method 1: Using the Vercel CLI
+### Option A: Deploy to Vercel (1-Click)
 ```bash
-# Install Vercel CLI globally (if not already installed)
 npm install -g vercel
-
-# Deploy directly from the project directory
 vercel
 ```
-- Accept default settings:
-  - Framework Preset: **Vite**
-  - Build Command: `npm run build`
-  - Output Directory: `dist`
-
-#### Method 2: Via GitHub Integration
-1. Push this repository to your GitHub account:
-   ```bash
-   git add .
-   git commit -m "feat: complete MEDIQ prototype"
-   git branch -M main
-   git remote add origin https://github.com/<YOUR-USERNAME>/<YOUR-REPO-NAME>.git
-   git push -u origin main
-   ```
-2. Go to [vercel.com/new](https://vercel.com/new) and import your repository.
-3. Vercel will automatically detect **Vite** and use `vercel.json` for SPA routing.
-4. Click **Deploy**.
-
----
+- Framework Preset: **Vite**
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- The included `vercel.json` automatically configures SPA routing.
 
 ### Option B: Deploy to Netlify
-
-#### Method 1: Using Netlify CLI
 ```bash
 npm install -g netlify-cli
 npm run build
 netlify deploy --prod --dir=dist
 ```
+- The included `public/_redirects` guarantees direct deep links work without 404s.
 
-#### Method 2: Via Netlify Web Dashboard
-1. Connect your GitHub repository at [app.netlify.com](https://app.netlify.com).
-2. Configure build settings:
-   - **Build Command:** `npm run build`
-   - **Publish Directory:** `dist`
-3. The included `public/_redirects` file guarantees direct URL routes resolve to `/index.html` without 404s.
-4. Click **Deploy Site**.
+### Option C: Docker Container (Hospital Intranet)
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
----
-
-### Option C: Deploy to GitHub Pages
-
-1. In `vite.config.ts`, if deploying to a repository subpath (e.g., `https://<username>.github.io/<repo-name>/`), set `base`:
-   ```ts
-   // vite.config.ts
-   export default defineConfig({
-     base: './', // relative assets base path
-     plugins: [react(), tailwindcss()],
-   })
-   ```
-2. Install `gh-pages`:
-   ```bash
-   npm install -D gh-pages
-   ```
-3. Add deployment scripts to `package.json`:
-   ```json
-   "scripts": {
-     "predeploy": "npm run build",
-     "deploy": "gh-pages -d dist"
-   }
-   ```
-4. Run:
-   ```bash
-   npm run deploy
-   ```
-
----
-
-### Option D: Docker / Hospital Edge Container
-
-For intranet or private ambulance edge gateways:
-
-1. Build container:
-   ```dockerfile
-   # Dockerfile
-   FROM node:20-alpine AS builder
-   WORKDIR /app
-   COPY package*.json ./
-   RUN npm ci
-   COPY . .
-   RUN npm run build
-
-   FROM nginx:alpine
-   COPY --from=builder /app/dist /usr/share/nginx/html
-   COPY nginx.conf /etc/nginx/conf.d/default.conf
-   EXPOSE 80
-   CMD ["nginx", "-g", "daemon off;"]
-   ```
-
-2. Run:
-   ```bash
-   docker build -t mediq-prototype .
-   docker run -p 8080:80 mediq-prototype
-   ```
-
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+```bash
+docker build -t mediq-app .
+docker run -p 8080:80 mediq-app
+```
