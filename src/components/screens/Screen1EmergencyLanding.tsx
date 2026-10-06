@@ -23,7 +23,7 @@ import {
 import { useMediq } from '../../context/MediqContext';
 import { LiveFaceCaptureModal } from '../common/LiveFaceCaptureModal';
 import { playScanSweepSound, playSuccessChime, playConflictAlertTone } from '../../utils/audioEffects';
-import type { ScanInputMethod } from '../../types/mediq';
+import type { ScanInputMethod, PatientProfile } from '../../types/mediq';
 
 export const Screen1EmergencyLanding: React.FC = () => {
   const {
@@ -40,6 +40,7 @@ export const Screen1EmergencyLanding: React.FC = () => {
     setIsCallModalOpen,
     currentClinician,
     setIsDoctorCardOpen,
+    selectPatientByAbha,
   } = useMediq();
 
   const [isLiveCameraOpen, setIsLiveCameraOpen] = useState(false);
@@ -80,12 +81,16 @@ export const Screen1EmergencyLanding: React.FC = () => {
     }, 1300);
   };
 
-  const handleCaptureSuccess = (photoDataUrl: string) => {
+  const handleCaptureSuccess = (photoDataUrl: string, selectedPatient?: PatientProfile) => {
     setCapturedPhotoUrl(photoDataUrl);
+    if (selectedPatient) {
+      selectPatientByAbha(selectedPatient.id);
+    }
     confirmIdentity();
     playSuccessChime();
 
-    if (currentPatient.hasBloodGroupConflict) {
+    const targetPatient = selectedPatient || currentPatient;
+    if (targetPatient.hasBloodGroupConflict) {
       setTimeout(() => {
         playConflictAlertTone();
       }, 500);

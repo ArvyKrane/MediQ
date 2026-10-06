@@ -118,6 +118,51 @@ interface MediqState {
 
 const DEMO_PATIENTS: PatientProfile[] = [
   {
+    id: 'MED-0777',
+    name: 'Arvy Krane',
+    abhaId: 'arvy.krane@abdm',
+    abhaNumber: '91-9988-7766-5544',
+    age: 22,
+    gender: 'Male',
+    dob: '05 May 2004',
+    maskedGovId: 'Aadhaar: •••• •••• 9924',
+    photoUrl: '/user_face.png',
+    bloodGroup: 'B+',
+    hasBloodGroupConflict: false,
+    bloodGroupSources: [
+      {
+        id: 'src-ak-1',
+        sourceName: 'AIIMS Apex Trauma Center',
+        institutionType: 'National Health Authority',
+        bloodGroup: 'B+',
+        confidence: 'High',
+        recordedDate: '01 Oct 2025',
+        verifiedBy: 'Dr. Rajiv Sharma (Attending)',
+        hash: 'sha256:4a9c1e...88f',
+        notes: 'ABDM biometric linked with Aadhaar FaceRD live capture.',
+      },
+    ],
+    allergies: [
+      { name: 'Dust Allergies', severity: 'Mild', verified: true, source: 'Citizen Self-Declaration' },
+    ],
+    medications: [],
+    acuteConditions: [
+      { name: 'Active Trauma Registry', notes: 'Live face registered in local ABDM repository', verified: true },
+    ],
+    emergencyContact: {
+      name: 'Emergency Next-of-Kin',
+      relationship: 'Family Member',
+      maskedPhone: '+91 •••••• 9924',
+      isVerified: true,
+    },
+    linkedHospitals: [
+      { name: 'AIIMS New Delhi', type: 'Apex Trauma', lastSync: 'Today', recordsShared: 3 },
+      { name: 'Apollo Emergency', type: 'Ambulance Network', lastSync: '1 hour ago', recordsShared: 2 },
+    ],
+    shieldedRecordsCount: 6,
+    shieldedCategories: ['OPD checkup logs', 'Dental cleaning record'],
+  },
+  {
     id: 'MED-0192',
     name: 'Aarav Mehta',
     abhaId: 'aarav.mehta@abdm',
