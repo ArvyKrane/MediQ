@@ -108,8 +108,8 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
         stopCamera();
         setCapturedPhotoUrl(dataUrl);
 
-        // Auto-match: Prioritize Arvy Krane (Your Enrolled Face) or current first profile
-        const userProfile = availablePatients.find((p) => p.name.toLowerCase().includes('arvy')) || availablePatients[0];
+        // Auto-match: Prioritize Atharv Bodkhe (Your Enrolled Face) or current first profile
+        const userProfile = availablePatients.find((p) => p.name.toLowerCase().includes('atharv')) || availablePatients[0];
         setMatchedCandidate(userProfile);
 
         setIsCapturing(false);
@@ -278,7 +278,7 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
 
               {availablePatients.map((p) => {
                 const isSelected = matchedCandidate.id === p.id;
-                const isUserEnrolled = p.id === 'MED-0777' || p.name.toLowerCase().includes('arvy');
+                const isUserEnrolled = p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv');
 
                 return (
                   <div

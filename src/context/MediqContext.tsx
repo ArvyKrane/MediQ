@@ -119,8 +119,8 @@ interface MediqState {
 const DEMO_PATIENTS: PatientProfile[] = [
   {
     id: 'MED-0777',
-    name: 'Arvy Krane',
-    abhaId: 'arvy.krane@abdm',
+    name: 'Atharv Bodkhe',
+    abhaId: 'atharv.bodkhe@abdm',
     abhaNumber: '91-9988-7766-5544',
     age: 22,
     gender: 'Male',
