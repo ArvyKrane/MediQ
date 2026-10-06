@@ -103,6 +103,8 @@ export const ERView: React.FC = () => {
     identityConfidence,
     setCurrentScreen,
     setIsInsuranceModalOpen,
+    currentClinician,
+    setIsDoctorCardOpen,
   } = useMediq();
 
   const [tab, setTab] = useState<ActiveTab>('er');
@@ -147,9 +149,18 @@ export const ERView: React.FC = () => {
             <h1 className="text-lg font-black text-white tracking-tight mt-1">
               ER Intelligence Dashboard
             </h1>
-            <p className="text-[11px] font-mono text-neutral-400 mt-0.5">
-              Attending: Dr. Sharma · AIIMS Delhi
-            </p>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <p className="text-[11px] font-mono text-neutral-300">
+                Attending: <strong className="text-white">{currentClinician.name}</strong> ({currentClinician.qualification})
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsDoctorCardOpen(true)}
+                className="text-[10px] font-mono bg-neutral-800 hover:bg-neutral-700 text-[#FFB800] border border-neutral-700 px-2 py-0.5 rounded font-bold transition-colors"
+              >
+                NMC: {currentClinician.nmcRegistrationNumber} &bull; HPID: {currentClinician.hprAddress} ↗
+              </button>
+            </div>
           </div>
           <div className="text-right shrink-0">
             <div className="text-[10px] font-mono text-neutral-500">ABHA</div>
@@ -259,6 +270,33 @@ export const ERView: React.FC = () => {
                 {c.verified && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />}
               </div>
             ))}
+
+            {/* Official Indian Doctor Legal Verification Seal */}
+            <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between p-3 rounded-2xl bg-neutral-50/80 border border-neutral-200/90">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-neutral-900 text-[#FFB800] flex items-center justify-center font-bold text-xs shrink-0">
+                  <Stethoscope className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+                    <span>Clinical Orders Under: {currentClinician.name}</span>
+                    <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-bold">
+                      NMC VERIFIED
+                    </span>
+                  </div>
+                  <div className="text-[10px] font-mono text-neutral-500">
+                    Reg: {currentClinician.nmcRegistrationNumber} &bull; HPID: {currentClinician.hprAddress} &bull; {currentClinician.stateMedicalCouncil.split('&')[0]}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDoctorCardOpen(true)}
+                className="text-xs font-bold text-neutral-900 underline font-mono text-[10px] shrink-0"
+              >
+                View HPR ID
+              </button>
+            </div>
           </div>
 
           {/* Insurance Shield Note */}

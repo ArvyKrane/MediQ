@@ -44,6 +44,8 @@ export const PatientView: React.FC = () => {
     addAuditLog,
     userRole,
     setIsContactShared,
+    currentClinician,
+    setIsDoctorCardOpen,
   } = useMediq();
 
   const isIdentified = identityStatus === 'VERIFIED' || identityStatus === 'MATCHED';
@@ -52,11 +54,11 @@ export const PatientView: React.FC = () => {
     resolveConflict(bloodGroup);
     addAuditLog({
       timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST',
-      actor: `${userRole.toUpperCase()} (${userRole === 'doctor' ? 'Dr. Sharma' : 'Paramedic'})`,
-      role: userRole,
-      action: `Confirmed blood group ${bloodGroup} via bedside agglutination test for ${currentPatient.name}`,
-      dataAccessed: 'Blood Group Conflict Resolution Record',
-      reason: 'Bedside clinical verification before blood transfusion',
+      actor: `${currentClinician.name} (${currentClinician.nmcRegistrationNumber} | HPID: ${currentClinician.hprAddress})`,
+      role: `${currentClinician.qualification} &bull; ${currentClinician.specialty}`,
+      action: `Physician confirmed blood group ${bloodGroup} via bedside agglutination test for ${currentPatient.name}`,
+      dataAccessed: `Blood Group Conflict Resolution [Cert: ${currentClinician.digitalSigningKey.slice(0, 24)}...]`,
+      reason: 'Physical bedside clinical verification prior to acute trauma blood transfusion',
       severity: 'warning',
     });
   };
@@ -187,9 +189,13 @@ export const PatientView: React.FC = () => {
                     : 'Apollo says B+ · Fortis says O+'}
                 </h3>
                 <p className="text-xs text-neutral-600 mt-1 leading-relaxed">
-                  {isConflictResolved
-                    ? 'Clinician confirmed via bedside agglutination test. Safe for transfusion.'
-                    : 'Cannot blindly merge conflicting hospital records. Perform a rapid bedside blood test before any transfusion.'}
+                  {isConflictResolved ? (
+                    <span>
+                      Confirmed by <strong className="text-neutral-900">{currentClinician.name}</strong> ({currentClinician.qualification}) &bull; Council Reg: <strong className="text-emerald-800 font-mono">{currentClinician.nmcRegistrationNumber}</strong> &bull; ABDM HPID: <strong className="text-emerald-800 font-mono">{currentClinician.hprAddress}</strong> via bedside agglutination test. Safe for transfusion.
+                    </span>
+                  ) : (
+                    'Cannot blindly merge conflicting hospital records. Perform a rapid bedside blood test before any transfusion.'
+                  )}
                 </p>
               </div>
             </div>
@@ -197,9 +203,18 @@ export const PatientView: React.FC = () => {
             {/* Bedside Resolution Buttons */}
             {!isConflictResolved && (
               <div className="mt-4 pt-4 border-t border-red-200/80">
-                <span className="text-[10px] font-mono font-bold text-neutral-600 uppercase block mb-2.5">
-                  Doctor: Confirm bedside agglutination result →
-                </span>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-mono font-bold text-neutral-600 uppercase block">
+                    Doctor on Duty: {currentClinician.name} ({currentClinician.nmcRegistrationNumber}) &bull; Confirm Bedside Result →
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsDoctorCardOpen(true)}
+                    className="text-[10px] font-mono text-neutral-500 hover:text-neutral-900 underline"
+                  >
+                    View Clinician ID
+                  </button>
+                </div>
                 <div className="grid grid-cols-2 gap-2.5">
                   {['B+', 'O+'].map((bg) => (
                     <button

@@ -54,7 +54,14 @@ const ROLES = [
 ];
 
 export const SaasOnboardingModal: React.FC<SaasOnboardingModalProps> = ({ isOpen, onClose }) => {
-  const { userRole, setUserRole, setCurrentScreen, resetEmergencyIntake } = useMediq();
+  const {
+    userRole,
+    setUserRole,
+    setCurrentScreen,
+    currentClinician,
+    availableClinicians,
+    setCurrentClinician,
+  } = useMediq();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedFacility, setSelectedFacility] = useState(FACILITIES[0]);
@@ -251,12 +258,15 @@ export const SaasOnboardingModal: React.FC<SaasOnboardingModalProps> = ({ isOpen
               </div>
 
               <div className="space-y-2.5">
-                {ROLES.map((r) => {
-                  const isCurrent = userRole === r.id;
+                {availableClinicians.map((c) => {
+                  const isCurrent = currentClinician.id === c.id;
                   return (
                     <div
-                      key={r.id}
-                      onClick={() => setUserRole(r.id as any)}
+                      key={c.id}
+                      onClick={() => {
+                        setCurrentClinician(c);
+                        setUserRole(c.role);
+                      }}
                       className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
                         isCurrent
                           ? 'border-neutral-950 bg-amber-50/50 shadow-2xs'
@@ -264,21 +274,26 @@ export const SaasOnboardingModal: React.FC<SaasOnboardingModalProps> = ({ isOpen
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-neutral-100 flex items-center justify-center">
-                          {r.icon}
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${
+                          isCurrent ? 'bg-neutral-950 text-[#FFB800]' : 'bg-neutral-100 text-neutral-700'
+                        }`}>
+                          <Stethoscope className="w-4 h-4" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-neutral-900">{r.title}</span>
-                            <span className="text-[10px] font-mono text-neutral-500 font-medium">({r.roleLabel})</span>
+                            <span className="text-xs font-bold text-neutral-900">{c.name}</span>
+                            <span className="text-[10px] font-mono text-neutral-500 font-medium">({c.qualification.split(',')[0]})</span>
                           </div>
-                          <span className="text-[10px] font-mono text-emerald-800 block mt-0.5">
-                            {r.badge}
+                          <div className="text-[10px] font-mono text-neutral-600 mt-0.5">
+                            Council: <strong className="text-neutral-900">{c.nmcRegistrationNumber}</strong> &bull; HPID: <strong className="text-emerald-800">{c.hprAddress}</strong>
+                          </div>
+                          <span className="text-[10px] text-neutral-500 block mt-0.5">
+                            {c.specialty}
                           </span>
                         </div>
                       </div>
                       {isCurrent && (
-                        <div className="w-6 h-6 rounded-full bg-neutral-950 text-[#FFB800] flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-neutral-950 text-[#FFB800] flex items-center justify-center shrink-0">
                           <Check className="w-3.5 h-3.5" />
                         </div>
                       )}

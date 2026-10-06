@@ -44,6 +44,8 @@ export const Navbar: React.FC = () => {
     setIsInsuranceModalOpen,
     setIsRegisterModalOpen,
     setIsOnboardingOpen,
+    currentClinician,
+    setIsDoctorCardOpen,
   } = useMediq();
 
   const [isScreenMenuOpen, setIsScreenMenuOpen] = useState<boolean>(false);
@@ -322,42 +324,28 @@ export const Navbar: React.FC = () => {
             )}
           </button>
 
-          {/* Role selector */}
-          <div className="relative shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsRoleMenuOpen(!isRoleMenuOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-xs font-medium text-neutral-800 transition-colors"
-            >
-              <User className="w-3.5 h-3.5 text-neutral-500" />
-              <span className="capitalize hidden xl:inline">{userRole.replace('-', ' ')}</span>
-              <ChevronDown className="w-3 h-3 text-neutral-400" />
-            </button>
-
-            {isRoleMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-lg border border-neutral-200 py-1.5 z-50 text-xs">
-                <div className="px-3 py-1 text-[10px] font-mono text-neutral-400 font-bold border-b border-neutral-100 uppercase">
-                  Select User Role
-                </div>
-                {(['doctor', 'ambulance-ems', 'first-responder', 'hospital-admin'] as UserRole[]).map(
-                  (role) => (
-                    <button
-                      key={role}
-                      onClick={() => {
-                        setUserRole(role);
-                        setIsRoleMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 capitalize hover:bg-neutral-100 transition-colors ${
-                        userRole === role ? 'font-bold text-amber-600 bg-amber-50/50' : 'text-neutral-700'
-                      }`}
-                    >
-                      {role.replace('-', ' ')}
-                    </button>
-                  )
-                )}
-              </div>
-            )}
-          </div>
+          {/* Official Doctor / Clinician Profile Badge (NMC & ABDM HPR) */}
+          <button
+            type="button"
+            onClick={() => setIsDoctorCardOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 text-xs font-medium text-neutral-900 transition-colors shrink-0 shadow-2xs group"
+            title="Click to view official Indian NMC & ABDM HPR Doctor ID Card"
+          >
+            <div className="w-6 h-6 rounded-lg bg-[#FFB800] text-black flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
+              <Stethoscope className="w-3.5 h-3.5" />
+            </div>
+            <div className="text-left leading-tight hidden lg:block">
+              <span className="font-bold text-neutral-950 block truncate max-w-[120px]">
+                {currentClinician.name}
+              </span>
+              <span className="text-[10px] font-mono text-emerald-800 font-bold block truncate max-w-[120px]">
+                {currentClinician.nmcRegistrationNumber}
+              </span>
+            </div>
+            <span className="text-[10px] font-mono bg-neutral-100 text-neutral-700 px-1.5 py-0.5 rounded font-bold lg:hidden">
+              DOC ID
+            </span>
+          </button>
         </div>
       </div>
     </header>

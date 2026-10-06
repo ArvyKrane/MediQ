@@ -9,6 +9,7 @@ import { MediqCallModal } from './components/common/MediqCallModal';
 import { InsuranceShieldModal } from './components/common/InsuranceShieldModal';
 import { CitizenOnboardingModal } from './components/citizen/CitizenOnboardingModal';
 import { SaasOnboardingModal } from './components/common/SaasOnboardingModal';
+import { DoctorDigitalIdModal } from './components/common/DoctorDigitalIdModal';
 
 // Unified Modern MVP Views
 import { Screen1EmergencyLanding } from './components/screens/Screen1EmergencyLanding';
@@ -67,6 +68,7 @@ const MainContent: React.FC = () => {
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
       />
+      <DoctorDigitalIdModal />
 
       {/* Persistent Floating 2-Minute Demo Flow Guide */}
       <DemoTourBar />

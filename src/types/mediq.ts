@@ -57,6 +57,24 @@ export interface ClinicalTrustBreakdown {
   provenance: number;
 }
 
+export interface ClinicianProfile {
+  id: string;
+  name: string;
+  qualification: string;
+  specialty: string;
+  // Official Indian Regulatory & ABDM Credentials
+  nmcRegistrationNumber: string; // e.g., "DMC/R/14205" (State Medical Council / NMC)
+  stateMedicalCouncil: string; // e.g., "Delhi Medical Council"
+  hpid: string; // 14-digit ABDM Health Professional ID: "21-8924-1102-3910"
+  hprAddress: string; // e.g., "dr.sharma@hpr.abdm"
+  facilityName: string; // e.g., "AIIMS New Delhi — Apex Trauma Bay #1"
+  facilityHfrId: string; // e.g., "HFR-IN-DL-00192"
+  digitalSigningKey: string;
+  status: 'ACTIVE & VERIFIED' | 'PROVISIONAL';
+  role: UserRole;
+  avatarUrl?: string;
+}
+
 export interface PatientProfile {
   id: string;
   name: string;

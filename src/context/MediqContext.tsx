@@ -9,6 +9,7 @@ import type {
   InsuranceShieldState,
   AuditEntry,
   ScanInputMethod,
+  ClinicianProfile,
 } from '../types/mediq';
 
 interface MediqState {
@@ -19,6 +20,13 @@ interface MediqState {
   setUserRole: (role: UserRole) => void;
   isOffline: boolean;
   setIsOffline: (offline: boolean) => void;
+
+  // Active Clinician (Doctor / Paramedic Profile under NMC & ABDM HPR)
+  currentClinician: ClinicianProfile;
+  availableClinicians: ClinicianProfile[];
+  setCurrentClinician: (clinician: ClinicianProfile) => void;
+  isDoctorCardOpen: boolean;
+  setIsDoctorCardOpen: (open: boolean) => void;
 
   // Active Patient Profile & Multi-patient switcher
   currentPatient: PatientProfile;
@@ -395,6 +403,54 @@ const initialAuditLogs: AuditEntry[] = [
   },
 ];
 
+const DEFAULT_CLINICIANS: ClinicianProfile[] = [
+  {
+    id: 'doc-sharma',
+    name: 'Dr. Rajiv Sharma',
+    qualification: 'MBBS, MD (Emergency Medicine & Critical Care - AIIMS)',
+    specialty: 'Apex Trauma Bay Chief & Resuscitation Specialist',
+    nmcRegistrationNumber: 'DMC/R/14205',
+    stateMedicalCouncil: 'Delhi Medical Council & National Medical Commission (NMC)',
+    hpid: '21-8924-1102-3910',
+    hprAddress: 'dr.sharma@hpr.abdm',
+    facilityName: 'AIIMS New Delhi — Apex Trauma Bay #1',
+    facilityHfrId: 'HFR-IN-DL-00192',
+    digitalSigningKey: 'SHA256:RSA-4096:NMC-DMC-14205-AUTHENTICATED',
+    status: 'ACTIVE & VERIFIED',
+    role: 'doctor',
+  },
+  {
+    id: 'emt-rajesh',
+    name: 'Rajesh Kumar, EMT-P',
+    qualification: 'B.Sc. Emergency Medical Tech, ATLS Certified',
+    specialty: 'Pre-Hospital Trauma Triage & Resuscitation',
+    nmcRegistrationNumber: 'NCAHP/DL/EMT-8819',
+    stateMedicalCouncil: 'National Commission for Allied & Healthcare Professions (NCAHP)',
+    hpid: '14-5510-9281-4402',
+    hprAddress: 'rajesh.k@hpr.abdm',
+    facilityName: 'Apollo Emergency Mobile Response Fleet',
+    facilityHfrId: 'HFR-IN-MH-00441',
+    digitalSigningKey: 'SHA256:RSA-2048:NCAHP-8819-SIG',
+    status: 'ACTIVE & VERIFIED',
+    role: 'ambulance-ems',
+  },
+  {
+    id: 'doc-ananya',
+    name: 'Dr. Ananya Sen',
+    qualification: 'MBBS, MS, MCh (Trauma & Acute Care Surgery)',
+    specialty: 'Trauma Resuscitation & Emergency Blood Transfusions',
+    nmcRegistrationNumber: 'WBMC/2018/3910',
+    stateMedicalCouncil: 'West Bengal Medical Council & NMC',
+    hpid: '91-3310-4491-0018',
+    hprAddress: 'dr.ananya@hpr.abdm',
+    facilityName: 'Fortis Memorial Critical Care Center',
+    facilityHfrId: 'HFR-IN-HR-00311',
+    digitalSigningKey: 'SHA256:RSA-4096:WBMC-3910-SIG',
+    status: 'ACTIVE & VERIFIED',
+    role: 'doctor',
+  },
+];
+
 const DEMO_STEPS: ScreenId[] = [
   'emergency-landing',
   'patient-identification',
@@ -414,6 +470,11 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('emergency-landing');
   const [userRole, setUserRole] = useState<UserRole>('doctor');
   const [isOffline, setIsOffline] = useState<boolean>(false);
+
+  // Clinician Profiles (NMC & ABDM HPR)
+  const [availableClinicians, setAvailableClinicians] = useState<ClinicianProfile[]>(DEFAULT_CLINICIANS);
+  const [currentClinician, setCurrentClinician] = useState<ClinicianProfile>(DEFAULT_CLINICIANS[0]);
+  const [isDoctorCardOpen, setIsDoctorCardOpen] = useState<boolean>(false);
 
   // Patients
   const [availablePatients, setAvailablePatients] = useState<PatientProfile[]>(DEMO_PATIENTS);
@@ -772,6 +833,12 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setUserRole,
         isOffline,
         setIsOffline,
+
+        currentClinician,
+        availableClinicians,
+        setCurrentClinician,
+        isDoctorCardOpen,
+        setIsDoctorCardOpen,
 
         currentPatient,
         availablePatients,
