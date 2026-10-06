@@ -2,7 +2,6 @@ import React from 'react';
 import { MediqProvider, useMediq } from './context/MediqContext';
 import { Navbar } from './components/common/Navbar';
 import { BottomNavigationBar } from './components/common/BottomNavigationBar';
-import { DemoTourBar } from './components/common/DemoTourBar';
 import { EvidenceDrawer } from './components/common/EvidenceDrawer';
 import { BreakGlassModal } from './components/common/BreakGlassModal';
 import { MediqCallModal } from './components/common/MediqCallModal';
@@ -69,9 +68,6 @@ const MainContent: React.FC = () => {
         onClose={() => setIsOnboardingOpen(false)}
       />
       <DoctorDigitalIdModal />
-
-      {/* Persistent Floating 2-Minute Demo Flow Guide */}
-      <DemoTourBar />
     </div>
   );
 };

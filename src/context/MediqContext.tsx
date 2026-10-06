@@ -126,6 +126,7 @@ const DEMO_PATIENTS: PatientProfile[] = [
     gender: 'Male',
     dob: '14 Aug 2005',
     maskedGovId: 'Aadhaar: •••• •••• 8924',
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
     bloodGroup: 'B+',
     hasBloodGroupConflict: true,
     bloodGroupSources: [
@@ -220,6 +221,7 @@ const DEMO_PATIENTS: PatientProfile[] = [
     gender: 'Female',
     dob: '22 Feb 1992',
     maskedGovId: 'Driving License: •••• •••• 1943',
+    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
     bloodGroup: 'A+',
     hasBloodGroupConflict: false,
     bloodGroupSources: [
@@ -269,6 +271,7 @@ const DEMO_PATIENTS: PatientProfile[] = [
     gender: 'Male',
     dob: '10 Nov 1968',
     maskedGovId: 'Voter ID: •••• •••• 7732',
+    photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80',
     bloodGroup: 'O+',
     hasBloodGroupConflict: false,
     bloodGroupSources: [
