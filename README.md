@@ -184,25 +184,23 @@ MEDIQ is built mobile-first with responsive touch targets, offline service worke
 2. Tap the browser menu `⋮` and select **"Add to Home screen"** or **"Install app"**.
 3. MEDIQ installs with full-screen standalone mode, custom launcher icon, and zero browser address bar interference.
 
-### Option B: Native Android APK via Capacitor
-To package MEDIQ as a native Android `.apk` / `.aab` for deployment to EMS tablets or the Google Play Store:
+### Option B: Native Android Project (Ready for Android Studio)
+The native Android project is **already initialized and configured** inside the `android/` directory with Camera (`CAMERA`) and Internet permissions!
+
+To open and run immediately in **Android Studio**:
 ```bash
-# 1. Install Capacitor dependencies
-npm install @capacitor/core @capacitor/cli @capacitor/android
-
-# 2. Initialize Capacitor configuration
-npx cap init "MEDIQ" "com.mediq.emergency" --web-dir="dist"
-
-# 3. Build production web bundle
-npm run build
-
-# 4. Add Android native platform
-npx cap add android
-
-# 5. Open project in Android Studio to build APK or debug on device
-npx cap open android
+# Open directly in Android Studio
+npm run cap:android
+# Or open the "android" directory directly from Android Studio: File -> Open -> select "android" folder
 ```
+
+Whenever you update web code, sync changes to Android Studio in one command:
+```bash
+npm run cap:sync
+```
+
 In Android Studio:
-- Select **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
-- Deploy the resulting APK to paramedical tablets, Samsung Knox devices, or hospital handheld scanners.
+- Select your connected phone, tablet, or emulator.
+- Hit **Run (Shift + F10)** to launch live on device.
+- Or select **Build > Build Bundle(s) / APK(s) > Build APK(s)** to generate a release APK.
 

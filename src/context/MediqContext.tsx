@@ -27,6 +27,8 @@ interface MediqState {
   registerPatient: (patient: PatientProfile) => void;
   isRegisterModalOpen: boolean;
   setIsRegisterModalOpen: (open: boolean) => void;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (open: boolean) => void;
 
   // Input & Verification State (No NFC - Face, Fingerprint, ID Card)
   activeInputMethod: ScanInputMethod | null;
@@ -417,6 +419,7 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [availablePatients, setAvailablePatients] = useState<PatientProfile[]>(DEMO_PATIENTS);
   const [currentPatient, setCurrentPatient] = useState<PatientProfile>(DEMO_PATIENTS[0]);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState<boolean>(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
 
   // Scanning inputs: No NFC! Strictly Face, Fingerprint, ID Card
   const [activeInputMethod, setActiveInputMethod] = useState<ScanInputMethod | null>(null);
@@ -776,6 +779,8 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         registerPatient,
         isRegisterModalOpen,
         setIsRegisterModalOpen,
+        isOnboardingOpen,
+        setIsOnboardingOpen,
 
         activeInputMethod,
         setActiveInputMethod,
