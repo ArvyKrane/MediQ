@@ -21,6 +21,8 @@ import {
 } from '../../utils/audioEffects';
 import { useMediq } from '../../context/MediqContext';
 import { LiveFaceCaptureModal } from '../common/LiveFaceCaptureModal';
+import { FingerprintScannerModal } from '../common/FingerprintScannerModal';
+import { IdCardScannerModal } from '../common/IdCardScannerModal';
 import type { PatientProfile } from '../../types/mediq';
 
 export const Screen1EmergencyLanding: React.FC = () => {
@@ -42,6 +44,8 @@ export const Screen1EmergencyLanding: React.FC = () => {
   } = useMediq();
 
   const [isLiveCameraOpen, setIsLiveCameraOpen] = useState(false);
+  const [isFingerprintModalOpen, setIsFingerprintModalOpen] = useState(false);
+  const [isIdCardModalOpen, setIsIdCardModalOpen] = useState(false);
   const [inPlaceScanning, setInPlaceScanning] = useState(false);
   const [scanStepText, setScanStepText] = useState('Scanning...');
 
@@ -215,9 +219,8 @@ export const Screen1EmergencyLanding: React.FC = () => {
         <div className="grid grid-cols-2 gap-2 pt-1">
           <button
             type="button"
-            onClick={() => handleSimulatedScan('fingerprint')}
-            disabled={inPlaceScanning}
-            className="p-2.5 rounded-xl border border-neutral-200 hover:border-neutral-300 bg-neutral-50 hover:bg-white text-left transition-all flex items-center gap-2.5"
+            onClick={() => setIsFingerprintModalOpen(true)}
+            className="p-2.5 rounded-xl border border-neutral-200 hover:border-neutral-300 bg-neutral-50 hover:bg-white text-left transition-all flex items-center gap-2.5 shadow-2xs"
           >
             <div className="p-1.5 rounded-lg bg-neutral-200 text-neutral-700 shrink-0">
               <Fingerprint className="w-4 h-4" />
@@ -230,9 +233,8 @@ export const Screen1EmergencyLanding: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => handleSimulatedScan('id-card')}
-            disabled={inPlaceScanning}
-            className="p-2.5 rounded-xl border border-neutral-200 hover:border-neutral-300 bg-neutral-50 hover:bg-white text-left transition-all flex items-center gap-2.5"
+            onClick={() => setIsIdCardModalOpen(true)}
+            className="p-2.5 rounded-xl border border-neutral-200 hover:border-neutral-300 bg-neutral-50 hover:bg-white text-left transition-all flex items-center gap-2.5 shadow-2xs"
           >
             <div className="p-1.5 rounded-lg bg-neutral-200 text-neutral-700 shrink-0">
               <CreditCard className="w-4 h-4" />
@@ -382,6 +384,20 @@ export const Screen1EmergencyLanding: React.FC = () => {
         isOpen={isLiveCameraOpen}
         onClose={() => setIsLiveCameraOpen(false)}
         onCapture={handleCaptureSuccess}
+      />
+
+      {/* Modal: Fingerprint Biometric Scanner */}
+      <FingerprintScannerModal
+        isOpen={isFingerprintModalOpen}
+        onClose={() => setIsFingerprintModalOpen(false)}
+        onSuccess={(patient) => handleCaptureSuccess(patient.photoUrl || '', patient)}
+      />
+
+      {/* Modal: Physical ID Card / Aadhaar Scanner */}
+      <IdCardScannerModal
+        isOpen={isIdCardModalOpen}
+        onClose={() => setIsIdCardModalOpen(false)}
+        onSuccess={(patient) => handleCaptureSuccess(patient.photoUrl || '', patient)}
       />
     </div>
   );
