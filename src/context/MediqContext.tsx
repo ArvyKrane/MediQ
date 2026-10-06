@@ -145,11 +145,20 @@ const DEMO_PATIENTS: PatientProfile[] = [
       },
     ],
     allergies: [
-      { name: 'Dust Allergies', severity: 'Mild', verified: true, source: 'Citizen Self-Declaration' },
+      { name: 'Dust & Pollen Allergies', severity: 'Mild', verified: true, source: 'Citizen Self-Declaration' },
+      { name: 'Ibuprofen (NSAIDs)', severity: 'Moderate', verified: true, source: 'AIIMS OPD — Gastric Distress' },
     ],
-    medications: [],
+    medications: [
+      { name: 'Insulin Aspart (Novorapid)', dosage: '6-8 Units', frequency: 'Before Meals (TDS)', verified: true },
+      { name: 'Insulin Glargine (Lantus)', dosage: '18 Units', frequency: 'Bedtime (Nightly)', verified: true },
+      { name: 'Glucagon Emergency HypoKit', dosage: '1mg IM', frequency: 'PRN (Severe Hypoglycemia)', verified: true },
+    ],
     acuteConditions: [
-      { name: 'Active Trauma Registry', notes: 'Live face registered in local ABDM repository', verified: true },
+      {
+        name: 'Type 1 Diabetes Mellitus (Insulin-Dependent)',
+        notes: 'High risk of acute hypoglycemia if unconscious or fasting. Measure capillary blood glucose (CBG) stat. Keep IV 25% Dextrose on standby.',
+        verified: true,
+      },
     ],
     emergencyContact: {
       name: 'Emergency Next-of-Kin',
@@ -359,6 +368,128 @@ const DEMO_PATIENTS: PatientProfile[] = [
       'Annual routine lipid profile tests',
     ],
   },
+  {
+    id: 'MED-0521',
+    name: 'Vikram Malhotra',
+    abhaId: 'vikram.malhotra@abdm',
+    abhaNumber: '91-6623-8819-0012',
+    age: 29,
+    gender: 'Male',
+    dob: '12 Jul 1997',
+    maskedGovId: 'Aadhaar: •••• •••• 5512',
+    photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80',
+    bloodGroup: 'O-',
+    hasBloodGroupConflict: false,
+    bloodGroupSources: [
+      {
+        id: 'src-vm-1',
+        sourceName: 'AIIMS Apex Trauma Center',
+        institutionType: 'National Hematology Registry',
+        bloodGroup: 'O-',
+        confidence: 'High',
+        recordedDate: '15 Jan 2026',
+        verifiedBy: 'Dr. V. Rathore (Hematology Head)',
+        hash: 'sha256:5c81a9...44d',
+        notes: 'Confirmed universal donor O negative. Registered with National Rare Blood Registry.',
+      },
+    ],
+    allergies: [
+      { name: 'NSAIDs (Ibuprofen / Diclofenac)', severity: 'Severe', verified: true, source: 'AIIMS Hematology — Fatal Coagulopathy Risk' },
+      { name: 'Aspirin', severity: 'Severe', verified: true, source: 'Contraindicated with Hemophilia' },
+    ],
+    medications: [
+      { name: 'Levetiracetam (Keppra)', dosage: '500mg', frequency: 'Twice daily (BD)', verified: true },
+      { name: 'Clobazam', dosage: '10mg', frequency: 'Nightly (HS)', verified: true },
+      { name: 'Recombinant Factor VIII (Advate)', dosage: '2000 IU', frequency: 'Twice Weekly Prophylaxis', verified: true },
+    ],
+    acuteConditions: [
+      {
+        name: 'Refractory Epilepsy (Tonic-Clonic)',
+        notes: 'Status epilepticus risk on blunt trauma. Maintain lateral recovery position. Give IV Midazolam 10mg if seizure > 3 mins.',
+        verified: true,
+      },
+      {
+        name: 'Severe Hemophilia A (Factor VIII < 1%)',
+        notes: 'CRITICAL BLEEDING ALERT: Fatal hemorrhage risk on trauma. Stat infusion: Factor VIII concentrate 50 IU/kg before CT scan.',
+        verified: true,
+      },
+    ],
+    emergencyContact: {
+      name: 'Rohan Malhotra',
+      relationship: 'Brother',
+      maskedPhone: '+91 •••••• 5512',
+      isVerified: true,
+    },
+    linkedHospitals: [
+      { name: 'AIIMS Hematology', type: 'Specialized Center', lastSync: '15 Jan 2026', recordsShared: 7 },
+    ],
+    shieldedRecordsCount: 9,
+    shieldedCategories: [
+      'Childhood hemarthrosis physiotherapy logs',
+      'Genetic testing pedigree analysis',
+    ],
+  },
+  {
+    id: 'MED-0633',
+    name: 'Sunita Deshmukh',
+    abhaId: 'sunita.deshmukh@abdm',
+    abhaNumber: '91-5512-4433-7721',
+    age: 46,
+    gender: 'Female',
+    dob: '04 Mar 1980',
+    maskedGovId: 'Aadhaar: •••• •••• 3319',
+    photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
+    bloodGroup: 'AB-',
+    hasBloodGroupConflict: false,
+    bloodGroupSources: [
+      {
+        id: 'src-sd-1',
+        sourceName: 'Ruby Hall Clinic Pune',
+        institutionType: 'Renal Transplant Unit',
+        bloodGroup: 'AB-',
+        confidence: 'High',
+        recordedDate: '20 Dec 2025',
+        verifiedBy: 'Dr. S. Kulkarni (Chief Nephrologist)',
+        hash: 'sha256:9f22c1...11a',
+        notes: 'Pre-dialysis serology confirmed AB negative.',
+      },
+    ],
+    allergies: [
+      { name: 'ACE Inhibitors (Enalapril / Ramipril)', severity: 'Severe', verified: true, source: 'Nephrology Ward — Acute Angioedema' },
+      { name: 'Iodinated Radiocontrast Media', severity: 'Severe', verified: true, source: 'Contrast-Induced Nephropathy Risk' },
+    ],
+    medications: [
+      { name: 'Amlodipine', dosage: '10mg', frequency: 'Daily (Morning)', verified: true },
+      { name: 'Torsemide', dosage: '20mg', frequency: 'Morning', verified: true },
+      { name: 'Sevelamer Carbonate', dosage: '800mg', frequency: 'TDS With Meals', verified: true },
+    ],
+    acuteConditions: [
+      {
+        name: 'End-Stage Renal Disease (CKD Stage 5 on Hemodialysis)',
+        notes: 'Left Forearm Radiocephalic AV Fistula. STRICT WARNING: DO NOT apply BP cuff or draw blood from LEFT arm. High risk of lethal hyperkalemia.',
+        verified: true,
+      },
+      {
+        name: 'Hypertensive Heart Disease',
+        notes: 'Baseline BP 150/90. Restrict rapid fluid boluses to prevent acute flash pulmonary edema.',
+        verified: true,
+      },
+    ],
+    emergencyContact: {
+      name: 'Ashok Deshmukh',
+      relationship: 'Spouse',
+      maskedPhone: '+91 •••••• 3319',
+      isVerified: true,
+    },
+    linkedHospitals: [
+      { name: 'Ruby Hall Clinic', type: 'Nephrology', lastSync: '20 Dec 2025', recordsShared: 8 },
+    ],
+    shieldedRecordsCount: 12,
+    shieldedCategories: [
+      'Routine bi-weekly dialysis flow sheets',
+      'Past dental abscess treatment notes',
+    ],
+  },
 ];
 
 const initialCandidates: IdentityCandidate[] = [
@@ -526,7 +657,35 @@ const getInitialPatients = (): PatientProfile[] => {
       const parsed: PatientProfile[] = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Prepend custom registered profiles before demo patients, de-duplicating by ID
-        const customOnes = parsed.filter((p) => !DEMO_PATIENTS.some((dp) => dp.id === p.id));
+        const customOnes = parsed
+          .filter((p) => p.id !== 'MED-0777' && !DEMO_PATIENTS.some((dp) => dp.id === p.id))
+          .map((p) => {
+            // Seed chronic condition if missing or generic placeholder
+            const hasRealCondition =
+              p.acuteConditions &&
+              p.acuteConditions.length > 0 &&
+              p.acuteConditions[0].name !== 'Emergency Profile Active';
+            if (!hasRealCondition) {
+              return {
+                ...p,
+                acuteConditions: [
+                  {
+                    name: 'Severe Chronic Bronchial Asthma',
+                    notes: 'Airway hyper-responsiveness. Keep Salbutamol / Budesonide inhaler ready on scene.',
+                    verified: true,
+                  },
+                ],
+                medications:
+                  p.medications && p.medications.length > 0
+                    ? p.medications
+                    : [
+                        { name: 'Salbutamol Inhaler', dosage: '100mcg', frequency: 'PRN', verified: true },
+                        { name: 'Montelukast', dosage: '10mg', frequency: 'Nightly', verified: true },
+                      ],
+              };
+            }
+            return p;
+          });
         return [...customOnes, ...DEMO_PATIENTS];
       }
     }

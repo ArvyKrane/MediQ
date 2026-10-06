@@ -15,6 +15,7 @@ import {
   Lock,
   QrCode,
   ShieldAlert,
+  Activity,
 } from 'lucide-react';
 import { useMediq } from '../../context/MediqContext';
 import type { PatientProfile } from '../../types/mediq';
@@ -36,6 +37,8 @@ export const CitizenOnboardingModal: React.FC = () => {
   // Emergency essentials
   const [bloodGroup, setBloodGroup] = useState<string>('O+');
   const [allergiesText, setAllergiesText] = useState<string>('Penicillin, Shellfish');
+  const [chronicCondition, setChronicCondition] = useState<string>('Type 1 Diabetes (Insulin Dependent)');
+  const [chronicNotes, setChronicNotes] = useState<string>('Check blood sugar immediately if unconscious. Keep insulin on standby.');
   const [contactName, setContactName] = useState<string>('Sunita Sharma');
   const [contactRelation, setContactRelation] = useState<string>('Mother');
   const [contactPhone, setContactPhone] = useState<string>('+91 98201 99234');
@@ -176,9 +179,22 @@ export const CitizenOnboardingModal: React.FC = () => {
       medications: [
         { name: 'Paracetamol', dosage: '500mg', frequency: 'As needed', verified: true }
       ],
-      acuteConditions: [
-        { name: 'Emergency Profile Active', notes: 'Enrolled via Aadhaar Face e-KYC', verified: true }
-      ],
+      acuteConditions:
+        chronicCondition.trim() && chronicCondition.toLowerCase() !== 'none'
+          ? [
+              {
+                name: chronicCondition.trim(),
+                notes: chronicNotes.trim() || 'Pre-existing chronic condition declared during verified citizen onboarding.',
+                verified: true,
+              },
+            ]
+          : [
+              {
+                name: 'No Critical Pre-existing Illness',
+                notes: 'Enrolled via Aadhaar Face e-KYC',
+                verified: true,
+              },
+            ],
       emergencyContact: {
         name: contactName,
         relationship: contactRelation,
@@ -498,6 +514,59 @@ export const CitizenOnboardingModal: React.FC = () => {
                 <span className="text-[10px] text-neutral-400 mt-0.5 block">
                   Leave blank or type 'None' if you have no known allergies.
                 </span>
+              </div>
+
+              {/* Pre-existing Chronic Disease / Condition */}
+              <div className="pt-2 border-t border-neutral-100">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
+                    <Activity className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Pre-existing Chronic Illness / Medical Condition</span>
+                  </label>
+                  <span className="text-[10px] text-amber-700 font-bold bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                    Crucial for ER Doctors
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {[
+                    'Type 1 Diabetes',
+                    'Refractory Epilepsy',
+                    'Severe Asthma',
+                    'Kidney Disease (CKD)',
+                    'Hypertension',
+                    'None',
+                  ].map((cond) => (
+                    <button
+                      key={cond}
+                      type="button"
+                      onClick={() => setChronicCondition(cond === 'None' ? '' : cond)}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-colors ${
+                        (cond === 'None' && !chronicCondition) || chronicCondition === cond
+                          ? 'bg-amber-400/20 text-amber-900 border-amber-400 font-bold'
+                          : 'bg-neutral-50 text-neutral-600 border-neutral-200 hover:bg-neutral-100'
+                      }`}
+                    >
+                      {cond}
+                    </button>
+                  ))}
+                </div>
+
+                <input
+                  type="text"
+                  value={chronicCondition}
+                  onChange={(e) => setChronicCondition(e.target.value)}
+                  placeholder="e.g. Type 1 Diabetes, Epilepsy, Asthma"
+                  className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-xs font-medium focus:outline-hidden focus:border-amber-500 mb-1.5"
+                />
+
+                <input
+                  type="text"
+                  value={chronicNotes}
+                  onChange={(e) => setChronicNotes(e.target.value)}
+                  placeholder="Clinical precautions (e.g. Check blood sugar immediately if unconscious)"
+                  className="w-full px-3.5 py-2 rounded-xl border border-neutral-200 bg-neutral-50/50 text-[11px] text-neutral-600 focus:outline-hidden focus:border-amber-500"
+                />
               </div>
 
               <div className="pt-2 border-t border-neutral-100">

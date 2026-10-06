@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Stethoscope,
   UserX,
+  Activity,
 } from 'lucide-react';
 import {
   playScanSweepSound,
@@ -348,6 +349,40 @@ export const Screen1EmergencyLanding: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* Pre-existing Chronic Conditions / Disease Alert */}
+            {currentPatient.acuteConditions && currentPatient.acuteConditions.length > 0 && (
+              <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200/90 shadow-2xs">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950">
+                    <Activity className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Pre-existing Chronic Diseases &amp; Conditions</span>
+                  </div>
+                  <span className="text-[9px] uppercase font-bold text-amber-800 bg-amber-200/70 px-1.5 py-0.2 rounded">
+                    ABDM Validated
+                  </span>
+                </div>
+                <div className="space-y-1.5">
+                  {currentPatient.acuteConditions.map((cond, idx) => (
+                    <div key={idx} className="bg-white/95 p-2.5 rounded-xl border border-amber-200/80 text-xs">
+                      <div className="font-bold text-neutral-900 flex items-center justify-between">
+                        <span>{cond.name}</span>
+                        {cond.verified && (
+                          <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
+                            Verified
+                          </span>
+                        )}
+                      </div>
+                      {cond.notes && (
+                        <p className="text-[11px] text-neutral-600 mt-0.5 leading-snug">
+                          {cond.notes}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Privacy Shield Pill */}
             <div
