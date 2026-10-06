@@ -84,12 +84,9 @@ export const Screen1EmergencyLanding: React.FC = () => {
   };
 
   const handleCaptureSuccess = (photoDataUrl: string, selectedPatient?: PatientProfile) => {
-    setCapturedPhotoUrl(photoDataUrl);
-    if (selectedPatient) {
-      selectPatient(selectedPatient);
-    } else {
-      confirmIdentity();
-    }
+    const target = selectedPatient || currentPatient;
+    selectPatient(target, photoDataUrl);
+    confirmIdentity();
     playSuccessChime();
 
     const targetPatient = selectedPatient || currentPatient;

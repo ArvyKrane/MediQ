@@ -80,10 +80,14 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play();
-          setCameraActive(true);
-        };
+        videoRef.current.setAttribute('playsinline', 'true');
+        videoRef.current.muted = true;
+        try {
+          await videoRef.current.play();
+        } catch (e) {
+          console.warn('Video play:', e);
+        }
+        setCameraActive(true);
       }
     } catch (err: any) {
       console.warn('Camera access issue:', err);
@@ -138,14 +142,16 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
     playSuccessChime();
     stopCamera();
     const primary = getPrimaryPatient();
-    setCapturedPhotoUrl(primary.photoUrl || '/user_face.png');
+    const photo = primary.photoUrl || '/user_face.png';
+    setCapturedPhotoUrl(photo);
     setMatchedCandidate(primary);
     setStep('matched');
   };
 
   const handleConfirmMatch = (patient: PatientProfile) => {
-    selectPatient(patient);
-    onCapture(capturedPhotoUrl || patient.photoUrl || '', patient);
+    const photoToUse = capturedPhotoUrl || patient.photoUrl || '/user_face.png';
+    selectPatient(patient, photoToUse);
+    onCapture(photoToUse, patient);
     onClose();
   };
 

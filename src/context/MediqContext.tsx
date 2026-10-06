@@ -32,7 +32,7 @@ interface MediqState {
   currentPatient: PatientProfile;
   availablePatients: PatientProfile[];
   selectPatientByAbha: (abhaIdOrNumber: string) => boolean;
-  selectPatient: (patient: PatientProfile) => void;
+  selectPatient: (patient: PatientProfile, photoOverride?: string | null) => void;
   lastEnrolledId: string | null;
   registerPatient: (patient: PatientProfile) => void;
   isRegisterModalOpen: boolean;
@@ -625,7 +625,7 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [demoStepIndex, setDemoStepIndex] = useState<number>(0);
 
   // Direct patient selector
-  const selectPatient = (patient: PatientProfile) => {
+  const selectPatient = (patient: PatientProfile, photoOverride?: string | null) => {
     setCurrentPatient(patient);
     setResolvedBloodGroup(patient.bloodGroup);
     setIsConflictResolved(!patient.hasBloodGroupConflict);
@@ -634,9 +634,14 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ...prev,
       shieldedPastRecordsCount: patient.shieldedRecordsCount,
     }));
-    if (patient.photoUrl) {
+    
+    // Explicit camera captured photo takes priority over static patient.photoUrl
+    if (photoOverride) {
+      setCapturedPhotoUrl(photoOverride);
+    } else if (patient.photoUrl) {
       setCapturedPhotoUrl(patient.photoUrl);
     }
+
     setIdentityConfidence(98.8);
     setIdentityStatus('VERIFIED');
     addAuditLog({
