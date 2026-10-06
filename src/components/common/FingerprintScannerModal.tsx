@@ -23,16 +23,14 @@ export const FingerprintScannerModal: React.FC<FingerprintScannerModalProps> = (
   onClose,
   onSuccess,
 }) => {
-  const { availablePatients, selectPatient, lastEnrolledId, setIsRegisterModalOpen } = useMediq();
+  const { availablePatients, currentPatient, selectPatient, lastEnrolledId } = useMediq();
 
-  // Find top priority patient (Atharv Bodkhe or newly registered)
+  // Benchmark patient is Atharv Bodkhe MED-0777 or current active patient
   const getPrimaryPatient = (): PatientProfile => {
-    if (lastEnrolledId) {
-      const found = availablePatients.find((p) => p.id === lastEnrolledId);
+    if (currentPatient && currentPatient.id) {
+      const found = availablePatients.find((p) => p.id === currentPatient.id);
       if (found) return found;
     }
-    const newlyRegistered = availablePatients.find((p) => p.id.startsWith('MED-REG-'));
-    if (newlyRegistered) return newlyRegistered;
     const atharv = availablePatients.find((p) => p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv'));
     if (atharv) return atharv;
     return availablePatients[0];
@@ -203,9 +201,10 @@ export const FingerprintScannerModal: React.FC<FingerprintScannerModalProps> = (
                   Matched Records in Health Registry:
                 </span>
 
-                {availablePatients.slice(0, 3).map((p) => {
+                {availablePatients.slice(0, 4).map((p) => {
                   const isSelected = matchedPatient.id === p.id;
-                  const isEnrolled = p.id === 'MED-0777' || p.id === lastEnrolledId || p.id.startsWith('MED-REG-');
+                  const isPrimaryAbdm = p.id === 'MED-0777';
+                  const isNewRegistration = p.id === lastEnrolledId || p.id.startsWith('MED-REG-');
 
                   return (
                     <div
@@ -227,23 +226,30 @@ export const FingerprintScannerModal: React.FC<FingerprintScannerModalProps> = (
                         )}
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-white truncate">{p.name}</span>
-                          {isEnrolled && (
-                            <span className="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-800 font-bold shrink-0">
-                              Your Profile
+                      <div className="flex-1 min-w-0 pr-1">
+                        <div className="text-xs font-bold text-white truncate leading-tight">
+                          {p.name}
+                        </div>
+                        <div className="text-[11px] text-neutral-400 flex items-center gap-1.5 mt-0.5 truncate">
+                          <span>Blood: <strong className="text-white">{p.bloodGroup}</strong></span>
+                          <span>&bull;</span>
+                          <span>{p.age}y</span>
+                          {isPrimaryAbdm && (
+                            <span className="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-800 font-semibold shrink-0">
+                              ABDM
                             </span>
                           )}
-                        </div>
-                        <div className="text-[11px] text-neutral-400 truncate mt-0.5">
-                          Blood: <strong className="text-white">{p.bloodGroup}</strong> &bull; {p.age}y &bull; {p.abhaId}
+                          {isNewRegistration && !isPrimaryAbdm && (
+                            <span className="text-[9px] bg-blue-950 text-blue-300 px-1.5 py-0.2 rounded border border-blue-800 font-semibold shrink-0">
+                              Registered
+                            </span>
+                          )}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
                         <span className={`text-[11px] font-bold ${isSelected ? 'text-[#FFB800]' : 'text-neutral-500'}`}>
-                          {isSelected ? '99%' : '78%'}
+                          {isSelected ? '99.4%' : '78%'}
                         </span>
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${

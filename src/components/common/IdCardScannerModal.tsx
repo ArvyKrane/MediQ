@@ -23,16 +23,14 @@ export const IdCardScannerModal: React.FC<IdCardScannerModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { availablePatients, selectPatient, lastEnrolledId } = useMediq();
+  const { availablePatients, currentPatient, selectPatient, lastEnrolledId } = useMediq();
 
-  // Find top priority patient (Atharv Bodkhe or newly registered)
+  // Benchmark patient is Atharv Bodkhe MED-0777 or current active patient
   const getPrimaryPatient = (): PatientProfile => {
-    if (lastEnrolledId) {
-      const found = availablePatients.find((p) => p.id === lastEnrolledId);
+    if (currentPatient && currentPatient.id) {
+      const found = availablePatients.find((p) => p.id === currentPatient.id);
       if (found) return found;
     }
-    const newlyRegistered = availablePatients.find((p) => p.id.startsWith('MED-REG-'));
-    if (newlyRegistered) return newlyRegistered;
     const atharv = availablePatients.find((p) => p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv'));
     if (atharv) return atharv;
     return availablePatients[0];
@@ -213,6 +211,75 @@ export const IdCardScannerModal: React.FC<IdCardScannerModalProps> = ({
                   <span className="text-neutral-400">ABHA Address:</span>
                   <span className="font-mono text-emerald-400 font-bold">{matchedPatient.abhaId}</span>
                 </div>
+              </div>
+
+              {/* Candidate Switcher */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] uppercase font-bold text-neutral-500 block">
+                  Matched Records in Health Registry:
+                </span>
+
+                {availablePatients.slice(0, 4).map((p) => {
+                  const isSelected = matchedPatient.id === p.id;
+                  const isPrimaryAbdm = p.id === 'MED-0777';
+                  const isNewRegistration = p.id === lastEnrolledId || p.id.startsWith('MED-REG-');
+
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => setMatchedPatient(p)}
+                      className={`p-2.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-3 ${
+                        isSelected
+                          ? 'border-[#FFB800] bg-neutral-900 shadow-sm'
+                          : 'border-neutral-800/80 hover:border-neutral-700 bg-neutral-900/40'
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-neutral-800 shrink-0 border border-neutral-700">
+                        {p.photoUrl ? (
+                          <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center font-bold text-xs text-[#FFB800]">
+                            {p.name[0]}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0 pr-1">
+                        <div className="text-xs font-bold text-white truncate leading-tight">
+                          {p.name}
+                        </div>
+                        <div className="text-[11px] text-neutral-400 flex items-center gap-1.5 mt-0.5 truncate">
+                          <span>Blood: <strong className="text-white">{p.bloodGroup}</strong></span>
+                          <span>&bull;</span>
+                          <span>{p.age}y</span>
+                          {isPrimaryAbdm && (
+                            <span className="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-800 font-semibold shrink-0">
+                              ABDM
+                            </span>
+                          )}
+                          {isNewRegistration && !isPrimaryAbdm && (
+                            <span className="text-[9px] bg-blue-950 text-blue-300 px-1.5 py-0.2 rounded border border-blue-800 font-semibold shrink-0">
+                              Registered
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-[11px] font-bold ${isSelected ? 'text-[#FFB800]' : 'text-neutral-500'}`}>
+                          {isSelected ? '100%' : '74%'}
+                        </span>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            isSelected ? 'border-[#FFB800] bg-[#FFB800]' : 'border-neutral-700'
+                          }`}
+                        >
+                          {isSelected && <Check className="w-3 h-3 text-black" />}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Bottom Unlock Button */}
