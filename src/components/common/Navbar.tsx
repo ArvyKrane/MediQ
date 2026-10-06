@@ -86,12 +86,9 @@ export const Navbar: React.FC = () => {
             <div>
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="font-black text-lg tracking-tight text-[#0A0A0A]">MEDIQ</span>
-                <span className="text-[10px] font-mono bg-amber-100/90 text-amber-950 px-1.5 py-0.5 rounded font-bold border border-amber-300">
-                  SAAS
-                </span>
               </div>
-              <p className="text-[10px] text-neutral-500 font-mono tracking-tight mt-0.5 hidden sm:block">
-                Emergency Intelligence
+              <p className="text-[10px] text-neutral-500 font-medium tracking-tight mt-0.5 hidden sm:block">
+                Emergency Health Platform
               </p>
             </div>
           </div>
@@ -194,17 +191,17 @@ export const Navbar: React.FC = () => {
           </div>
         </nav>
 
-        {/* Right Controls: SaaS Onboarding Tour, Patient Switcher, Insurance, Role */}
+        {/* Right Controls: Patient Switcher, Insurance, Role */}
         <div className="flex items-center gap-2">
-          {/* SaaS Onboarding & Setup Tour Button */}
+          {/* SaaS Onboarding & Setup Tour Button (Desktop only) */}
           <button
             type="button"
             onClick={() => setIsOnboardingOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-[#FFB800] text-xs font-bold shadow-2xs transition-colors shrink-0"
-            title="Open Enterprise SaaS Onboarding & Facility Switcher"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-[#FFB800] text-xs font-bold shadow-2xs transition-colors shrink-0"
+            title="Open Enterprise Onboarding & Facility Switcher"
           >
             <Compass className="w-3.5 h-3.5 text-[#FFB800]" />
-            <span className="hidden sm:inline">Onboarding Tour</span>
+            <span>Onboarding Tour</span>
           </button>
 
           {/* Citizen Sign-Up Button */}

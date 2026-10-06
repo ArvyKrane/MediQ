@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Camera, X, RefreshCw, Check, Sparkles, AlertCircle, User, ArrowRight, UserPlus, ShieldCheck } from 'lucide-react';
+import { Camera, X, Check, UserPlus, ArrowRight } from 'lucide-react';
 import { playScanSweepSound, playSuccessChime } from '../../utils/audioEffects';
 import { useMediq } from '../../context/MediqContext';
 import type { PatientProfile } from '../../types/mediq';
@@ -25,9 +25,23 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
   const [isCapturing, setIsCapturing] = useState(false);
   const [capturedPhotoUrl, setCapturedPhotoUrl] = useState<string | null>(null);
   const [step, setStep] = useState<'camera' | 'matched'>('camera');
-  const [matchedCandidate, setMatchedCandidate] = useState<PatientProfile>(availablePatients[0]);
+  
+  // Find primary default patient (Atharv Bodkhe or newly registered)
+  const getPrimaryPatient = (): PatientProfile => {
+    if (lastEnrolledId) {
+      const found = availablePatients.find((p) => p.id === lastEnrolledId);
+      if (found) return found;
+    }
+    const newlyRegistered = availablePatients.find((p) => p.id.startsWith('MED-REG-'));
+    if (newlyRegistered) return newlyRegistered;
+    const atharv = availablePatients.find((p) => p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv'));
+    if (atharv) return atharv;
+    return availablePatients[0];
+  };
 
-  // Start webcam when modal opens
+  const [matchedCandidate, setMatchedCandidate] = useState<PatientProfile>(getPrimaryPatient);
+
+  // Start camera when modal opens
   useEffect(() => {
     if (!isOpen) {
       stopCamera();
@@ -37,6 +51,7 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
       return;
     }
 
+    setMatchedCandidate(getPrimaryPatient());
     startCamera();
 
     return () => {
@@ -50,7 +65,7 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
 
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera not supported in this browser. Please use demo selfie.');
+        throw new Error('Camera not available. Tap "Use Demo Photo" to test.');
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -71,10 +86,8 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
         };
       }
     } catch (err: any) {
-      console.warn('Camera access denied or unavailable:', err);
-      setCameraError(
-        err.message || 'Camera blocked. Click "Use Sample Photo" below to continue.'
-      );
+      console.warn('Camera access issue:', err);
+      setCameraError(err.message || 'Camera blocked. Tap "Use Demo Photo" below to continue.');
       setCameraActive(false);
     }
   };
@@ -108,20 +121,15 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
         stopCamera();
         setCapturedPhotoUrl(dataUrl);
 
-        // Auto-match: Prioritize newly registered patient if one exists, then Atharv Bodkhe (enrolled face)
-        const topMatch =
-          (lastEnrolledId ? availablePatients.find((p) => p.id === lastEnrolledId) : null) ||
-          availablePatients.find((p) => p.id.startsWith('MED-REG-')) ||
-          availablePatients.find((p) => p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv')) ||
-          availablePatients[0];
-
+        // Auto-match: Prioritize newly registered patient, then Atharv Bodkhe
+        const topMatch = getPrimaryPatient();
         setMatchedCandidate(topMatch);
 
         setIsCapturing(false);
         setStep('matched');
       }
     } catch (err) {
-      console.error('Frame capture error:', err);
+      console.error('Capture error:', err);
       setIsCapturing(false);
     }
   };
@@ -129,10 +137,9 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
   const handleUseDemoSample = () => {
     playSuccessChime();
     stopCamera();
-    const sample = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80';
-    setCapturedPhotoUrl(sample);
-    const aarav = availablePatients.find((p) => p.id === 'MED-0192') || availablePatients[0];
-    setMatchedCandidate(aarav);
+    const primary = getPrimaryPatient();
+    setCapturedPhotoUrl(primary.photoUrl || '/user_face.png');
+    setMatchedCandidate(primary);
     setStep('matched');
   };
 
@@ -145,15 +152,15 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
-      <div className="relative w-full max-w-md bg-neutral-950 text-white rounded-3xl border border-neutral-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs safe-top-padding safe-bottom-padding animate-in fade-in duration-150">
+      <div className="relative w-full max-w-md bg-neutral-950 text-white rounded-3xl border border-neutral-800 shadow-2xl max-h-[86vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
         
         {/* Top Header */}
-        <div className="p-4 flex items-center justify-between border-b border-neutral-800">
+        <div className="p-4 flex items-center justify-between border-b border-neutral-800 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-            <span className="font-mono text-xs font-bold text-[#FFB800] uppercase tracking-wider">
-              {step === 'camera' ? 'ABHA Live FaceRD Scanner' : 'Aadhaar Biometric Match Result'}
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-bold text-[#FFB800] uppercase tracking-wide">
+              {step === 'camera' ? 'Patient Face Scan' : 'Face Matched'}
             </span>
           </div>
           <button
@@ -167,7 +174,7 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
 
         {/* STEP 1: Live Camera Viewfinder */}
         {step === 'camera' && (
-          <div>
+          <div className="flex flex-col flex-1 overflow-hidden">
             <div className="relative w-full aspect-4/3 bg-black flex items-center justify-center overflow-hidden">
               <video
                 ref={videoRef}
@@ -179,166 +186,152 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
                 }`}
               />
 
+              {/* Camera Error / Fallback State */}
               {!cameraActive && (
                 <div className="p-6 text-center space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center mx-auto text-amber-400">
-                    <Camera className="w-7 h-7" />
+                  <div className="w-12 h-12 rounded-2xl bg-neutral-900 text-amber-400 flex items-center justify-center mx-auto border border-neutral-800">
+                    <Camera className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">
-                      {cameraError ? 'Camera Unavailable' : 'Starting Camera...'}
-                    </h4>
-                    <p className="text-xs text-neutral-400 mt-1 max-w-xs leading-relaxed">
-                      {cameraError || 'Allow camera permission in your browser to take a live selfie.'}
+                    <h4 className="text-sm font-bold text-white">Camera Offline</h4>
+                    <p className="text-xs text-neutral-400 mt-1 max-w-xs mx-auto">
+                      {cameraError || 'Allow camera permission or use the test photo below.'}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={handleUseDemoSample}
-                    className="mt-2 px-4 py-2 rounded-xl bg-[#FFB800] text-black font-bold text-xs shadow-sm hover:bg-amber-400 transition-colors"
+                    className="px-4 py-2 bg-[#FFB800] hover:bg-amber-400 text-black font-bold text-xs rounded-xl transition-colors shadow-xs"
                   >
-                    Use Sample Photo Instead
+                    Use Test Photo Instead
                   </button>
                 </div>
               )}
 
-              {/* Sci-Fi Biometric Face Mesh Reticle Overlay */}
+              {/* Simple Reticle Guide */}
               {cameraActive && (
-                <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-6">
-                  <div className="bg-black/60 backdrop-blur-xs px-3 py-1 rounded-full border border-neutral-700 font-mono text-[10px] text-emerald-400 font-bold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>LIVENESS TRACKER: ALIGN FACE IN OVAL</span>
-                  </div>
+                <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-4">
+                  <span className="bg-black/70 px-3 py-1 rounded-full text-[11px] text-white font-medium">
+                    Position patient face inside frame
+                  </span>
 
-                  <div className="relative w-52 h-64 rounded-[50%] border-2 border-dashed border-[#FFB800]/80 shadow-[0_0_20px_rgba(255,184,0,0.25)] flex items-center justify-center">
-                    <div className="absolute -top-3 w-6 h-0.5 bg-[#FFB800]" />
-                    <div className="absolute -bottom-3 w-6 h-0.5 bg-[#FFB800]" />
-                    <div className="absolute -left-3 h-6 w-0.5 bg-[#FFB800]" />
-                    <div className="absolute -right-3 h-6 w-0.5 bg-[#FFB800]" />
+                  <div className="relative w-44 h-56 rounded-full border-2 border-dashed border-[#FFB800] flex items-center justify-center">
                     <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-[#FFB800] to-transparent animate-scanline" />
                   </div>
 
-                  <div className="bg-black/60 backdrop-blur-xs px-3 py-1 rounded-full border border-neutral-700 font-mono text-[10px] text-neutral-300">
-                    Hold still &bull; Match against enrolled biometric profiles
-                  </div>
+                  <span className="bg-black/70 px-3 py-1 rounded-full text-[10px] text-neutral-300">
+                    Hold still for instant identification
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="p-4 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between gap-3">
+            {/* Bottom Actions */}
+            <div className="p-3.5 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
                 onClick={handleUseDemoSample}
-                className="text-[11px] font-mono text-neutral-400 hover:text-white underline"
+                className="text-xs text-neutral-400 hover:text-white underline px-1"
               >
-                Use Demo Photo
+                Use Test Photo
               </button>
 
               <button
                 type="button"
                 onClick={handleCaptureFrame}
                 disabled={!cameraActive || isCapturing}
-                className={`flex-1 py-3 rounded-2xl font-black text-xs flex items-center justify-center gap-2 shadow-lg transition-all ${
+                className={`flex-1 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all ${
                   cameraActive && !isCapturing
-                    ? 'bg-neutral-950 text-[#FFB800] border-2 border-[#FFB800] hover:bg-neutral-900 active:scale-98'
+                    ? 'bg-[#FFB800] hover:bg-amber-400 text-black active:scale-98'
                     : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
                 }`}
               >
-                <Camera className="w-4 h-4 text-[#FFB800]" />
-                <span>{isCapturing ? 'MATCHING FACIAL VECTORS...' : 'CAPTURE PHOTO & MATCH FACE'}</span>
+                <Camera className="w-4 h-4" />
+                <span>{isCapturing ? 'Scanning Face...' : 'Take Photo & Identify'}</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 2: Biometric Face Recognition Result & Candidate Matcher */}
+        {/* STEP 2: Recognition Result & Patient Profile Selector */}
         {step === 'matched' && (
-          <div className="p-5 space-y-4 animate-in fade-in duration-200">
-            {/* Captured Photo + Recognition Badge */}
-            <div className="flex items-center gap-4 p-3.5 bg-neutral-900 rounded-2xl border border-neutral-800">
-              <div className="relative w-18 h-18 rounded-2xl overflow-hidden bg-neutral-800 border-2 border-[#FFB800] shrink-0 shadow-md">
-                {capturedPhotoUrl && (
-                  <img src={capturedPhotoUrl} alt="Captured" className="w-full h-full object-cover" />
-                )}
+          <div className="p-4 space-y-3 overflow-y-auto flex-1">
+            {/* Top Confirmed Card */}
+            <div className="flex items-center gap-3 p-3 bg-neutral-900 rounded-2xl border border-neutral-800">
+              <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-neutral-800 border-2 border-[#FFB800] shrink-0">
+                <img
+                  src={capturedPhotoUrl || matchedCandidate.photoUrl || '/user_face.png'}
+                  alt="Captured"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="font-mono text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800 inline-block mb-1">
-                  ✓ FACE VECTOR MATCHED: 98.8%
+                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800 inline-block mb-0.5">
+                  ✓ Match Found: 99%
                 </span>
                 <h4 className="text-sm font-bold text-white truncate">
-                  Aadhaar Biometric Attested
+                  {matchedCandidate.name}
                 </h4>
-                <p className="text-[11px] text-neutral-400 mt-0.5">
-                  Select which enrolled profile to unlock in emergency intake:
+                <p className="text-xs text-neutral-400">
+                  Blood Group: <strong className="text-white">{matchedCandidate.bloodGroup}</strong> &bull; {matchedCandidate.age} yrs
                 </p>
               </div>
             </div>
 
-            {/* Candidate List (Enrolled Face vs Demo Patients) */}
-            <div className="space-y-2">
-              <span className="text-[10px] font-mono uppercase font-bold text-neutral-500 block">
-                Matched ABDM Candidate Profiles:
+            {/* Candidate List */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] uppercase font-bold text-neutral-500 block">
+                Select Patient Record to Open:
               </span>
 
               {availablePatients.map((p, idx) => {
                 const isSelected = matchedCandidate.id === p.id;
-                const isNewlyEnrolled = p.id === lastEnrolledId || p.id.startsWith('MED-REG-');
-                const isAtharv = p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv');
-                const matchScore = isSelected ? '98.8%' : idx === 1 ? '84.2%' : idx === 2 ? '67.5%' : '48.9%';
+                const isEnrolled = p.id === 'MED-0777' || p.id === lastEnrolledId || p.id.startsWith('MED-REG-');
+                const score = isSelected ? '99%' : idx === 1 ? '82%' : idx === 2 ? '65%' : '45%';
 
                 return (
                   <div
                     key={p.id}
                     onClick={() => setMatchedCandidate(p)}
-                    className={`p-3 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                    className={`p-2.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-3 ${
                       isSelected
-                        ? 'border-[#FFB800] bg-neutral-900 shadow-md'
-                        : 'border-neutral-800 hover:border-neutral-700 bg-neutral-900/40'
+                        ? 'border-[#FFB800] bg-neutral-900 shadow-sm'
+                        : 'border-neutral-800/80 hover:border-neutral-700 bg-neutral-900/40'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-neutral-800 shrink-0 border border-neutral-700">
-                        {p.photoUrl ? (
-                          <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center font-bold text-xs text-[#FFB800]">
-                            {p.name[0]}
-                          </div>
+                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-neutral-800 shrink-0 border border-neutral-700">
+                      {p.photoUrl ? (
+                        <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center font-bold text-xs text-[#FFB800]">
+                          {p.name[0]}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-white truncate">{p.name}</span>
+                        {isEnrolled && (
+                          <span className="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-800 font-bold shrink-0">
+                            Your Profile
+                          </span>
                         )}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-bold text-white">{p.name}</span>
-                          {isNewlyEnrolled && (
-                            <span className="text-[9px] font-mono bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded border border-amber-500/40 font-bold">
-                              ★ Newly Registered ABHA
-                            </span>
-                          )}
-                          {!isNewlyEnrolled && isAtharv && (
-                            <span className="text-[9px] font-mono bg-emerald-950 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-800 font-bold">
-                              Enrolled Aadhaar Face
-                            </span>
-                          )}
-                          {p.hasBloodGroupConflict && (
-                            <span className="text-[9px] font-mono bg-red-950 text-red-300 px-1.5 py-0.2 rounded border border-red-800 font-bold">
-                              Conflict Demo
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] font-mono text-neutral-400 block mt-0.5">
-                          {p.abhaId} &bull; Blood: <strong className="text-white">{p.bloodGroup}</strong> &bull; {p.age}y
-                        </span>
+                      <div className="text-[11px] text-neutral-400 truncate mt-0.5">
+                        Blood: <strong className="text-white">{p.bloodGroup}</strong> &bull; {p.age}y &bull; {p.abhaId}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className={`text-[10px] font-mono font-bold ${isSelected ? 'text-[#FFB800]' : 'text-neutral-500'}`}>
-                        {matchScore}
+                      <span className={`text-[11px] font-bold ${isSelected ? 'text-[#FFB800]' : 'text-neutral-500'}`}>
+                        {score}
                       </span>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                        isSelected ? 'border-[#FFB800] bg-[#FFB800]' : 'border-neutral-700'
-                      }`}>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? 'border-[#FFB800] bg-[#FFB800]' : 'border-neutral-700'
+                        }`}
+                      >
                         {isSelected && <Check className="w-3 h-3 text-black" />}
                       </div>
                     </div>
@@ -348,25 +341,25 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
             </div>
 
             {/* Bottom Actions */}
-            <div className="pt-3 border-t border-neutral-800 flex items-center justify-between gap-3">
+            <div className="pt-2 border-t border-neutral-800 flex items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => {
                   onClose();
                   setIsRegisterModalOpen(true);
                 }}
-                className="text-[11px] font-mono text-neutral-400 hover:text-white flex items-center gap-1 underline"
+                className="text-xs text-neutral-400 hover:text-white flex items-center gap-1 underline"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span>+ Register New Profile</span>
+                <span>+ Register New</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleConfirmMatch(matchedCandidate)}
-                className="px-5 py-2.5 rounded-2xl bg-[#FFB800] hover:bg-amber-400 text-black font-black text-xs flex items-center gap-2 shadow-md transition-all active:scale-98"
+                className="px-5 py-2.5 rounded-xl bg-[#FFB800] hover:bg-amber-400 text-black font-bold text-xs flex items-center gap-2 shadow-md transition-all active:scale-98"
               >
-                <span>Unlock {matchedCandidate.name}</span>
+                <span>Open {matchedCandidate.name.split(' ')[0]}'s Record</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
