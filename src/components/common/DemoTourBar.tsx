@@ -12,7 +12,7 @@ interface StepMeta {
 const TOUR_STEPS: StepMeta[] = [
   { id: 'emergency-landing', title: '1. Emergency Intake', badge: 'Unconscious Patient' },
   { id: 'patient-identification', title: '2. Biometric & ID Scan', badge: 'Face, Finger, ID Card' },
-  { id: 'identity-verification', title: '3. ABHA Identity Found', badge: 'Aarav Mehta (94% Match)' },
+  { id: 'identity-verification', title: '3. ABHA Identity Found', badge: 'Aadhaar e-KYC Confirmed' },
   { id: 'clinical-trust', title: '4. Medical Conflict Alert', badge: 'B+ vs O+ Blood Warning' },
   { id: 'emergency-contact', title: '5. Private Family Call', badge: 'Encrypted Proxy Call' },
   { id: 'patient-profile', title: '6. Verified Health Profile', badge: 'Life-Saving Facts' },

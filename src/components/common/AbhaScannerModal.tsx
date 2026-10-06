@@ -54,7 +54,6 @@ export const AbhaScannerModal: React.FC<AbhaScannerModalProps> = ({
   const handleFinishAndProceed = () => {
     confirmIdentity();
     onClose();
-    setCurrentScreen('identity-verification');
   };
 
   return (
@@ -211,8 +210,8 @@ export const AbhaScannerModal: React.FC<AbhaScannerModalProps> = ({
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                   MATCH FOUND ON ABDM REGISTRY
                 </span>
-                <span className="font-mono text-xs font-bold text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200">
-                  94.2% Confidence
+                <span className="font-mono text-xs font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-emerald-300">
+                  Aadhaar e-KYC Verified ✓
                 </span>
               </div>
               <div className="mt-2 text-neutral-900">
