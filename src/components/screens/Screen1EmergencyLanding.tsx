@@ -41,6 +41,7 @@ export const Screen1EmergencyLanding: React.FC = () => {
     currentClinician,
     setIsDoctorCardOpen,
     selectPatientByAbha,
+    selectPatient,
   } = useMediq();
 
   const [isLiveCameraOpen, setIsLiveCameraOpen] = useState(false);
@@ -84,9 +85,10 @@ export const Screen1EmergencyLanding: React.FC = () => {
   const handleCaptureSuccess = (photoDataUrl: string, selectedPatient?: PatientProfile) => {
     setCapturedPhotoUrl(photoDataUrl);
     if (selectedPatient) {
-      selectPatientByAbha(selectedPatient.id);
+      selectPatient(selectedPatient);
+    } else {
+      confirmIdentity();
     }
-    confirmIdentity();
     playSuccessChime();
 
     const targetPatient = selectedPatient || currentPatient;

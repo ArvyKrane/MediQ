@@ -1,10 +1,19 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import './index.css';
+import App from './App.tsx';
+
+// On native Android / iOS, configure status bar to prevent webview collision
+if (Capacitor.isNativePlatform()) {
+  StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
+  StatusBar.setBackgroundColor({ color: '#0A0A0A' }).catch(() => {});
+  StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
   </StrictMode>,
-)
+);

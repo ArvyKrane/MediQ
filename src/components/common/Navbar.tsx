@@ -72,8 +72,8 @@ export const Navbar: React.FC = () => {
   const isShieldActive = currentScreen === 'audit-log' || currentScreen === 'offline-mode';
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral-200/90 text-neutral-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral-200/90 text-neutral-900 safe-top-padding">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
         {/* Brand & Mission */}
         <div className="flex items-center gap-3 shrink-0">
           <div
@@ -292,15 +292,15 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Insurance Privacy Shield Button */}
+          {/* Insurance Privacy Shield Button (Desktop, mobile uses Bottom Bar) */}
           <button
             type="button"
             onClick={() => setIsInsuranceModalOpen(true)}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition-colors text-xs font-semibold shrink-0"
+            className="hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition-colors text-xs font-semibold shrink-0"
             title="Click to view why your past medical history is shielded from insurance companies"
           >
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span className="hidden lg:inline text-[11px] font-bold">Shield</span>
+            <span className="text-[11px] font-bold">Shield</span>
           </button>
 
           {/* Offline / Online Connection Toggle */}

@@ -9,6 +9,10 @@
     --mediq-dark: #09090b;
     --mediq-surface: #ffffff;
     --mediq-bg: #f8f9fa;
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
   }
 
   body {
@@ -19,6 +23,14 @@
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
   }
+}
+
+.safe-top-padding {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+
+.safe-bottom-padding {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }
 
 /* Subtle tech grid background */

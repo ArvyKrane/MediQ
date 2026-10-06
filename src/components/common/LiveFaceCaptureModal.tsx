@@ -15,7 +15,7 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
   onClose,
   onCapture,
 }) => {
-  const { availablePatients, selectPatientByAbha, setIsRegisterModalOpen } = useMediq();
+  const { availablePatients, selectPatient, lastEnrolledId, setIsRegisterModalOpen } = useMediq();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -108,9 +108,14 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
         stopCamera();
         setCapturedPhotoUrl(dataUrl);
 
-        // Auto-match: Prioritize Atharv Bodkhe (Your Enrolled Face) or current first profile
-        const userProfile = availablePatients.find((p) => p.name.toLowerCase().includes('atharv')) || availablePatients[0];
-        setMatchedCandidate(userProfile);
+        // Auto-match: Prioritize newly registered patient if one exists, then Atharv Bodkhe (enrolled face)
+        const topMatch =
+          (lastEnrolledId ? availablePatients.find((p) => p.id === lastEnrolledId) : null) ||
+          availablePatients.find((p) => p.id.startsWith('MED-REG-')) ||
+          availablePatients.find((p) => p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv')) ||
+          availablePatients[0];
+
+        setMatchedCandidate(topMatch);
 
         setIsCapturing(false);
         setStep('matched');
@@ -132,7 +137,7 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
   };
 
   const handleConfirmMatch = (patient: PatientProfile) => {
-    selectPatientByAbha(patient.id);
+    selectPatient(patient);
     onCapture(capturedPhotoUrl || patient.photoUrl || '', patient);
     onClose();
   };
@@ -276,9 +281,11 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
                 Matched ABDM Candidate Profiles:
               </span>
 
-              {availablePatients.map((p) => {
+              {availablePatients.map((p, idx) => {
                 const isSelected = matchedCandidate.id === p.id;
-                const isUserEnrolled = p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv');
+                const isNewlyEnrolled = p.id === lastEnrolledId || p.id.startsWith('MED-REG-');
+                const isAtharv = p.id === 'MED-0777' || p.name.toLowerCase().includes('atharv');
+                const matchScore = isSelected ? '98.8%' : idx === 1 ? '84.2%' : idx === 2 ? '67.5%' : '48.9%';
 
                 return (
                   <div
@@ -301,16 +308,21 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
                         )}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-xs font-bold text-white">{p.name}</span>
-                          {isUserEnrolled && (
+                          {isNewlyEnrolled && (
+                            <span className="text-[9px] font-mono bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded border border-amber-500/40 font-bold">
+                              ★ Newly Registered ABHA
+                            </span>
+                          )}
+                          {!isNewlyEnrolled && isAtharv && (
                             <span className="text-[9px] font-mono bg-emerald-950 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-800 font-bold">
-                              Your Enrolled Face
+                              Enrolled Aadhaar Face
                             </span>
                           )}
                           {p.hasBloodGroupConflict && (
                             <span className="text-[9px] font-mono bg-red-950 text-red-300 px-1.5 py-0.2 rounded border border-red-800 font-bold">
-                              Blood Conflict Demo
+                              Conflict Demo
                             </span>
                           )}
                         </div>
@@ -320,10 +332,15 @@ export const LiveFaceCaptureModal: React.FC<LiveFaceCaptureModalProps> = ({
                       </div>
                     </div>
 
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      isSelected ? 'border-[#FFB800] bg-[#FFB800]' : 'border-neutral-700'
-                    }`}>
-                      {isSelected && <Check className="w-3 h-3 text-black" />}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={`text-[10px] font-mono font-bold ${isSelected ? 'text-[#FFB800]' : 'text-neutral-500'}`}>
+                        {matchScore}
+                      </span>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        isSelected ? 'border-[#FFB800] bg-[#FFB800]' : 'border-neutral-700'
+                      }`}>
+                        {isSelected && <Check className="w-3 h-3 text-black" />}
+                      </div>
                     </div>
                   </div>
                 );

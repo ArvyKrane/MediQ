@@ -44,8 +44,11 @@ export const BottomNavigationBar: React.FC = () => {
   const activeTab = getActiveTab();
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-neutral-200/90 shadow-lg md:hidden">
-      <div className="grid grid-cols-5 h-16 max-w-md mx-auto px-1">
+    <nav
+      className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-neutral-200/90 shadow-lg md:hidden safe-bottom-padding"
+      style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 4px)' }}
+    >
+      <div className="grid grid-cols-5 h-15 max-w-md mx-auto px-1">
         {/* 1. Intake */}
         <button
           type="button"

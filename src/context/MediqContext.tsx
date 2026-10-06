@@ -32,6 +32,8 @@ interface MediqState {
   currentPatient: PatientProfile;
   availablePatients: PatientProfile[];
   selectPatientByAbha: (abhaIdOrNumber: string) => boolean;
+  selectPatient: (patient: PatientProfile) => void;
+  lastEnrolledId: string | null;
   registerPatient: (patient: PatientProfile) => void;
   isRegisterModalOpen: boolean;
   setIsRegisterModalOpen: (open: boolean) => void;
@@ -514,6 +516,26 @@ const DEMO_STEPS: ScreenId[] = [
 
 const MediqContext = createContext<MediqState | undefined>(undefined);
 
+const LOCAL_STORAGE_KEY = 'mediq_registered_patients_v1';
+const LAST_ENROLLED_KEY = 'mediq_last_enrolled_patient_id';
+
+const getInitialPatients = (): PatientProfile[] => {
+  try {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      const parsed: PatientProfile[] = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Prepend custom registered profiles before demo patients, de-duplicating by ID
+        const customOnes = parsed.filter((p) => !DEMO_PATIENTS.some((dp) => dp.id === p.id));
+        return [...customOnes, ...DEMO_PATIENTS];
+      }
+    }
+  } catch (e) {
+    console.warn('Could not load stored patients from localStorage:', e);
+  }
+  return DEMO_PATIENTS;
+};
+
 export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('emergency-landing');
   const [userRole, setUserRole] = useState<UserRole>('doctor');
@@ -524,9 +546,19 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentClinician, setCurrentClinician] = useState<ClinicianProfile>(DEFAULT_CLINICIANS[0]);
   const [isDoctorCardOpen, setIsDoctorCardOpen] = useState<boolean>(false);
 
-  // Patients
-  const [availablePatients, setAvailablePatients] = useState<PatientProfile[]>(DEMO_PATIENTS);
-  const [currentPatient, setCurrentPatient] = useState<PatientProfile>(DEMO_PATIENTS[0]);
+  // Patients (persisted across reloads)
+  const [availablePatients, setAvailablePatients] = useState<PatientProfile[]>(getInitialPatients);
+  const [lastEnrolledId, setLastEnrolledId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(LAST_ENROLLED_KEY);
+    } catch {
+      return null;
+    }
+  });
+  const [currentPatient, setCurrentPatient] = useState<PatientProfile>(() => {
+    const list = getInitialPatients();
+    return list[0] || DEMO_PATIENTS[0];
+  });
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState<boolean>(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
 
@@ -592,44 +624,9 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isDemoPlaying, setIsDemoPlaying] = useState<boolean>(false);
   const [demoStepIndex, setDemoStepIndex] = useState<number>(0);
 
-  // Patient selector helper
-  const selectPatientByAbha = (query: string): boolean => {
-    const q = query.trim().toLowerCase();
-    const found = availablePatients.find(
-      (p) =>
-        p.abhaId.toLowerCase().includes(q) ||
-        p.abhaNumber.includes(q) ||
-        p.name.toLowerCase().includes(q)
-    );
-    if (found) {
-      setCurrentPatient(found);
-      setResolvedBloodGroup(found.bloodGroup);
-      setIsConflictResolved(!found.hasBloodGroupConflict);
-      setClinicalTrustScore(found.hasBloodGroupConflict ? 71 : 92);
-      setInsuranceShield((prev) => ({
-        ...prev,
-        shieldedPastRecordsCount: found.shieldedRecordsCount,
-      }));
-      addAuditLog({
-        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST',
-        actor: 'MEDIQ ABDM Gateway',
-        role: 'Gateway Relay',
-        action: `Retrieved emergency health bundle for ${found.name} (${found.abhaId})`,
-        dataAccessed: 'Blood group, critical allergies, active medications',
-        reason: 'Emergency intake look-up',
-        severity: 'normal',
-      });
-      return true;
-    }
-    return false;
-  };
-
-  const registerPatient = (patient: PatientProfile) => {
-    setAvailablePatients((prev) => [patient, ...prev.filter(p => p.id !== patient.id)]);
+  // Direct patient selector
+  const selectPatient = (patient: PatientProfile) => {
     setCurrentPatient(patient);
-    if (patient.photoUrl) {
-      setCapturedPhotoUrl(patient.photoUrl);
-    }
     setResolvedBloodGroup(patient.bloodGroup);
     setIsConflictResolved(!patient.hasBloodGroupConflict);
     setClinicalTrustScore(patient.hasBloodGroupConflict ? 71 : 94);
@@ -637,6 +634,60 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ...prev,
       shieldedPastRecordsCount: patient.shieldedRecordsCount,
     }));
+    if (patient.photoUrl) {
+      setCapturedPhotoUrl(patient.photoUrl);
+    }
+    setIdentityConfidence(98.8);
+    setIdentityStatus('VERIFIED');
+    addAuditLog({
+      timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST',
+      actor: 'MEDIQ ABDM Gateway',
+      role: 'Gateway Relay',
+      action: `Retrieved emergency health bundle for ${patient.name} (${patient.abhaId})`,
+      dataAccessed: 'Blood group, critical allergies, active medications',
+      reason: 'Emergency intake identity match',
+      severity: 'normal',
+    });
+  };
+
+  // Patient selector helper by ID, ABHA ID or Name
+  const selectPatientByAbha = (query: string): boolean => {
+    const q = query.trim().toLowerCase();
+    const found = availablePatients.find(
+      (p) =>
+        p.id.toLowerCase() === q ||
+        p.id.toLowerCase().includes(q) ||
+        p.abhaId.toLowerCase().includes(q) ||
+        p.abhaNumber.includes(q) ||
+        p.name.toLowerCase().includes(q)
+    );
+    if (found) {
+      selectPatient(found);
+      return true;
+    }
+    return false;
+  };
+
+  const registerPatient = (patient: PatientProfile) => {
+    setAvailablePatients((prev) => {
+      const updated = [patient, ...prev.filter((p) => p.id !== patient.id)];
+      try {
+        const customToSave = updated.filter((p) => p.id.startsWith('MED-REG-') || p.id === 'MED-0777');
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(customToSave));
+      } catch (e) {
+        console.warn('Failed to persist registered patient to localStorage:', e);
+      }
+      return updated;
+    });
+
+    setLastEnrolledId(patient.id);
+    try {
+      localStorage.setItem(LAST_ENROLLED_KEY, patient.id);
+    } catch {}
+
+    selectPatient(patient);
+    setIdentityStatus('VERIFIED');
+
     addAuditLog({
       timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST',
       actor: 'ABDM Citizen e-KYC',
@@ -891,6 +942,8 @@ export const MediqProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         currentPatient,
         availablePatients,
         selectPatientByAbha,
+        selectPatient,
+        lastEnrolledId,
         registerPatient,
         isRegisterModalOpen,
         setIsRegisterModalOpen,
